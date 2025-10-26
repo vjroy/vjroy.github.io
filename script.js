@@ -1,94 +1,81 @@
-// Dynamic gradient effect based on scroll position
+// Dynamic Background and Scroll Effects
 document.addEventListener('DOMContentLoaded', function() {
-    const body = document.body;
-    const projectsSection = document.getElementById('projects');
-    const runningSection = document.getElementById('running');
-    
-    // Function to update gradient based on scroll position
+    // Ensure video loads and plays
+    const video = document.querySelector('.video-background video');
+    if (video) {
+        video.addEventListener('loadeddata', function() {
+            console.log('Video loaded successfully');
+            this.play().catch(e => console.log('Video autoplay failed:', e));
+        });
+        
+        video.addEventListener('error', function() {
+            console.log('Video failed to load, using fallback background');
+            document.querySelector('.video-background').style.background = 
+                'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%)';
+        });
+        
+        // Force play on user interaction
+        document.addEventListener('click', function() {
+            if (video.paused) {
+                video.play().catch(e => console.log('Video play failed:', e));
+            }
+        }, { once: true });
+    }
+
+    // Simple gradient change based on scroll position (no parallax)
     function updateGradient() {
         const scrollY = window.scrollY;
         const windowHeight = window.innerHeight;
         const documentHeight = document.documentElement.scrollHeight;
-        
-        // Calculate scroll percentage
-        const scrollPercentage = scrollY / (documentHeight - windowHeight);
+        const scrollPercent = scrollY / (documentHeight - windowHeight);
         
         // Remove existing gradient classes
-        body.classList.remove('gradient-warm', 'gradient-cool');
+        document.body.classList.remove('gradient-warm', 'gradient-cool');
         
-        if (scrollPercentage < 0.3) {
-            // Top section - warm Instagram colors
-            body.classList.add('gradient-warm');
-        } else if (scrollPercentage < 0.7) {
-            // Middle section - transition to cool colors
-            const transitionProgress = (scrollPercentage - 0.3) / 0.4;
-            const warmColors = [
-                '#f09433', '#e6683c', '#dc2743', '#cc2366', '#bc1888'
-            ];
-            const coolColors = [
-                '#667eea', '#764ba2', '#6B73FF', '#9B59B6', '#8E44AD'
-            ];
-            
-            // Interpolate between warm and cool colors
-            const interpolatedColors = warmColors.map((warmColor, index) => {
-                return interpolateColor(warmColor, coolColors[index], transitionProgress);
-            });
-            
-            body.style.background = `linear-gradient(135deg, 
-                ${interpolatedColors[0]} 0%, 
-                ${interpolatedColors[1]} 25%, 
-                ${interpolatedColors[2]} 50%, 
-                ${interpolatedColors[3]} 75%, 
-                ${interpolatedColors[4]} 100%)`;
+        // Add appropriate gradient class based on scroll position
+        if (scrollPercent < 0.3) {
+            document.body.classList.add('gradient-warm');
+        } else if (scrollPercent > 0.7) {
+            document.body.classList.add('gradient-warm');
         } else {
-            // Bottom section - cool colors
-            body.classList.add('gradient-cool');
+            document.body.classList.add('gradient-cool');
         }
     }
     
-    // Function to interpolate between two hex colors
-    function interpolateColor(color1, color2, factor) {
-        const hex1 = color1.replace('#', '');
-        const hex2 = color2.replace('#', '');
-        
-        const r1 = parseInt(hex1.substr(0, 2), 16);
-        const g1 = parseInt(hex1.substr(2, 2), 16);
-        const b1 = parseInt(hex1.substr(4, 2), 16);
-        
-        const r2 = parseInt(hex2.substr(0, 2), 16);
-        const g2 = parseInt(hex2.substr(2, 2), 16);
-        const b2 = parseInt(hex2.substr(4, 2), 16);
-        
-        const r = Math.round(r1 + (r2 - r1) * factor);
-        const g = Math.round(g1 + (g2 - g1) * factor);
-        const b = Math.round(b1 + (b2 - b1) * factor);
-        
-        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-    }
-    
-    // Smooth scrolling for navigation
-    function smoothScrollTo(element) {
-        element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-    }
-    
-    // Add scroll event listener
+    // Simple scroll listener without throttling
     window.addEventListener('scroll', updateGradient);
     
-    // Initialize gradient
+    // Initial gradient
     updateGradient();
+
+    // Scroll Progress Bar
+    function updateScrollProgress() {
+        const scrollTop = window.pageYOffset;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = (scrollTop / docHeight) * 100;
+        document.querySelector('.scroll-progress-bar').style.width = scrollPercent + '%';
+    }
     
-    // Add smooth scrolling to project links
-    document.querySelectorAll('.project-link, .running-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            // You can add specific scroll behavior here if needed
-        });
-    });
+    window.addEventListener('scroll', updateScrollProgress);
+
+    // Create Floating Particles
+    function createParticles() {
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 50;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+            particlesContainer.appendChild(particle);
+        }
+    }
     
-    // Add intersection observer for fade-in animations
+    createParticles();
+
+    // Enhanced Scroll Animations
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -98,16 +85,166 @@ document.addEventListener('DOMContentLoaded', function() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+                entry.target.style.transform = 'translateY(0) scale(1)';
+                entry.target.classList.add('animate-in');
             }
         });
     }, observerOptions);
     
-    // Observe project and running cards
-    document.querySelectorAll('.project-card, .running-card').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(30px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(card);
+    // Observe all sections for animations
+    const sections = document.querySelectorAll('.profile-section, .about-section, .project-card, .running-card');
+    sections.forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(50px) scale(0.95)';
+        section.style.transition = 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+        observer.observe(section);
+    });
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Enhanced Interactive Effects
+    const projectCards = document.querySelectorAll('.project-card, .running-card');
+    
+    // Add magnetic effect to cards
+    projectCards.forEach(card => {
+        card.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            
+            this.style.transform = `translateY(-8px) scale(1.02) translate(${x * 0.1}px, ${y * 0.1}px)`;
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1) translate(0px, 0px)';
+        });
+    });
+    
+    // Advanced Typography Animations
+    function createTextRevealAnimation() {
+        const textElements = document.querySelectorAll('.name, .title, .project-title, .running-title');
+        
+        textElements.forEach(element => {
+            const text = element.textContent;
+            element.innerHTML = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                const span = document.createElement('span');
+                span.textContent = text[i];
+                span.style.opacity = '0';
+                span.style.transform = 'translateY(20px) rotateX(90deg)';
+                span.style.transition = `opacity 0.6s ease ${i * 0.05}s, transform 0.6s ease ${i * 0.05}s`;
+                span.style.display = 'inline-block';
+                element.appendChild(span);
+            }
+            
+            // Trigger animation when element comes into view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const spans = entry.target.querySelectorAll('span');
+                        spans.forEach(span => {
+                            span.style.opacity = '1';
+                            span.style.transform = 'translateY(0) rotateX(0deg)';
+                        });
+                    }
+                });
+            });
+            
+            observer.observe(element);
+        });
+    }
+    
+    createTextRevealAnimation();
+
+    // Typing effect for name with enhanced styling
+    const nameElement = document.querySelector('.name');
+    if (nameElement) {
+        const originalText = nameElement.textContent;
+        nameElement.textContent = '';
+        
+        let i = 0;
+        const typeWriter = () => {
+            if (i < originalText.length) {
+                nameElement.textContent += originalText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 120);
+            }
+        };
+        
+        setTimeout(typeWriter, 1500);
+    }
+    
+    // Add glow effect to profile picture
+    const profilePicture = document.querySelector('.profile-picture');
+    if (profilePicture) {
+        profilePicture.addEventListener('mouseenter', function() {
+            this.style.boxShadow = '0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(255, 215, 0, 0.3)';
+        });
+        
+        profilePicture.addEventListener('mouseleave', function() {
+            this.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.1)';
+        });
+    }
+    
+    // Add click ripple effect to buttons
+    const buttons = document.querySelectorAll('.project-link, .running-link');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
     });
 });
+
+// Add CSS for ripple effect
+const style = document.createElement('style');
+style.textContent = `
+    .project-link, .running-link {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+        pointer-events: none;
+    }
+    
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
