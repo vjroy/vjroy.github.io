@@ -3,89 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veejhay Roy - Solar System</title>
+    <title>Veejhay Roy</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
-    <!-- Fontshare Unique Fonts -->
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@1,900,700,500,301,701,300,501,401,901,400&display=swap" rel="stylesheet">
-    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@1,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet">
-    <link href="https://api.fontshare.com/v2/css?f[]=kohinoor-zerone@1,300,400,500,600,700&display=swap" rel="stylesheet">
-    <!-- New Fonts -->
-    <link href="https://api.fontshare.com/v2/css?f[]=chillax@1,200,300,400,500,600,700&display=swap" rel="stylesheet">
-    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@1,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/simple-parallax-js@5.6.2/dist/simpleParallax.min.js"></script>
 </head>
 <body>
-    <!-- Video Background -->
-    <div class="video-background">
-        <video autoplay muted loop playsinline>
-            <source src="5680034-hd_1920_1080_24fps.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-    </div>
-
-    <!-- Scroll Progress Bar -->
-    <div class="scroll-progress">
-        <div class="scroll-progress-bar"></div>
-    </div>
-
-    <!-- Floating Particles -->
-    <div class="particles" id="particles"></div>
-
-    <!-- Main Content -->
-    <div class="container">
-        <!-- Profile Section -->
-        <div class="profile-section">
-            <div class="profile-picture">
-                <img src="pic2.jpg" alt="Veejhay Roy">
+    <div class="main-container">
+        <!-- Hero Section -->
+        <section class="hero" data-scroll>
+            <div class="hero-content">
+                <div class="profile-img-wrapper">
+                    <img src="pic2.jpg" alt="Veejhay Roy" class="profile-img">
+                </div>
+                <h1 class="hero-name">
+                    <span class="typing-text" data-text="Veejhay Roy">Veejhay Roy</span>
+                </h1>
+                <p class="hero-title">
+                    <span class="typing-text" data-text="Computer Science & Machine Learning Student">Computer Science & Machine Learning Student</span>
+                </p>
+                <p class="hero-email">usroyvj@gmail.com</p>
+                <div class="social-links">
+                    <a href="mailto:usroyvj@gmail.com" class="social-link" aria-label="Email">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </a>
+                    <a href="https://github.com/vjroy" target="_blank" rel="noopener" class="social-link" aria-label="GitHub">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/>
+                        </svg>
+                    </a>
+                    <a href="https://discord.com/users/688513027124887601" target="_blank" rel="noopener" class="social-link" aria-label="Discord">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.066.066 0 0 0 .031-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.strava.com/athletes/104292885" target="_blank" rel="noopener" class="social-link" aria-label="Strava">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.387 17.944l-2.089-4.158-3.846 10.166L2.047 24v-.093l10.036-17.305L8.605 6.76H6.252l3.414 6.826-5.03 10.249-3.4-6.826H.717l8.744 17.697-2.602 5.579h13.714l4.262-5.579-3.747-7.255zm4.202 1.885h-1.32l-2.904-5.676-.228.457-3.578 7.284h1.32l2.776-5.704 3.003 5.676h1.747z"/>
+                        </svg>
+                    </a>
+                </div>
             </div>
-            <h1 class="name">Veejhay Roy</h1>
-            <p class="title">Computer  Science  &  Machine  Learning  Student</p>
-            <div class="email-section">
-                <p class="email">usroyvj@gmail.com</p>
+            
+            <!-- Scroll Indicator -->
+            <div class="scroll-indicator-wrapper">
+                <div class="scroll-text">
+                SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN
             </div>
-        </div>
+            <div class="scroll-text">
+                    SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN
+                </div>
+                <div class="scroll-text">
+                    SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN
+                </div>
+            </div>
+        </section>
 
         <!-- About Section -->
-        <div class="about-section">
-            <p>I'm currently a student at West-Windsor Plainsboro High School North that's passionate about studying Computer Science and Machine Learning. I've immersed myself in Computer Science and Machine Learning in a few different ways. Down below you'll see links to my LLM evaluation paper with MIT graduate Roger Jin, my final project on credit card fraudulent detection at Columbia University, and my app SplitDecision I co-created for the schools track and cross country teams. When I'm not coding, you can find me running: I've been part of the school's track and cross country teams all throughout high school, and it's really fun :)</p>
-        </div>
+        <section class="about" data-scroll>
+            <p class="about-text">I'm Veejhay Roy, a student passionate about computer science, machine learning, and running. I enjoy exploring how technology and discipline can work together to create real-world change. Scroll down to explore my research, projects, and athletic journey.</p>
+        </section>
 
         <!-- Projects Section -->
-        <div id="projects">
-            <div class="project-card">
-                <h3 class="project-title">LLM  Research</h3>
-                <p class="project-description">Collaborated with MIT graduate Roger Jin on LLM evaluation research</p>
-            </div>
-
-            <div class="project-card">
-                <h3 class="project-title">Credit  Card  Fraud  Detection</h3>
-                <p class="project-description">Final project at Columbia University using machine learning to detect fraudulent transactions</p>
+        <section class="projects" data-scroll>
+            <div class="project-item">
+                <span class="project-tag">Research</span>
+                <h2 class="project-title">
+                    <span class="typing-text" data-text="LLM Research">LLM Research</span>
+                </h2>
+                <p class="project-desc">I co-authored a research paper with MIT graduate Roger Jin evaluating 13 large language models on geographic route-planning tasks. Our benchmark, RouteEval, tested over 10,000 generated routes to measure distance and waypoint accuracy across real-world conditions. The project deepened my understanding of how LLMs integrate reasoning and tool use, blending my interests in AI and applied data science.</p>
                 <div class="project-links">
-                    <a href="https://github.com/yazganschool/finalproject" class="project-link" onclick="window.open(this.href, '_blank'); return false;">GitHub Repository</a>
-                    <a href="Final Project.pdf" class="project-link" onclick="window.open(this.href, '_blank'); return false;">Final Project.pdf</a>
+                    <a href="LLM_Research (1).pdf" target="_blank" rel="noopener" class="link">View Research Paper</a>
                 </div>
             </div>
 
-            <div class="project-card">
-                <h3 class="project-title">SplitDecision  App</h3>
-                <p class="project-description">Co-created app for the school's track and cross country teams to help our coaches with storing splits</p>
+            <div class="project-item" data-scroll>
+                <span class="project-tag">Machine Learning</span>
+                <h2 class="project-title">
+                    <span class="typing-text" data-text="Credit Card Fraud Detection">Credit Card Fraud Detection</span>
+                </h2>
+                <p class="project-desc">During my summer at Columbia University, I studied data science and machine learning and linear algebra in an intensive program. For my final project, a classmate and I built a model to detect fraudulent credit card transactions using Python, pandas, and scikit-learn. The experience taught me how to apply algorithms to real-world data challenges and reinforced my passion for ethical, impactful AI.</p>
                 <div class="project-links">
-                    <span class="project-link no-arrow">Search Split/Decision on the App Store</span>
+                    <a href="https://github.com/yazganschool/finalproject" target="_blank" rel="noopener" class="link">GitHub Repository</a>
+                    <a href="Final Project.pdf" target="_blank" rel="noopener" class="link">View PDF</a>
                 </div>
             </div>
 
-            <div class="running-card">
-                <h3 class="running-title">Track  &  Cross  Country</h3>
-                <p class="running-description">Been part of the school's track and cross country teams all throughout high school. Running has been a huge part of my life and I love the competitive spirit and personal growth it brings. Check out my running profile to see my times and achievements!</p>
+            <div class="project-item" data-scroll>
+                <span class="project-tag">Mobile App</span>
+                <h2 class="project-title">
+                    <span class="typing-text" data-text="SplitDecision">SplitDecision</span>
+                </h2>
+                <p class="project-desc">Noticing how my coaches recorded splits by hand, my friend and I created SplitDecision, an iOS app that digitizes workout data for our track and cross country teams. The app allows runners to instantly upload their splits while coaches can sort, analyze, and track performance over time. It's been used by over 100+ athletes at my school.</p>
+                <p class="project-note">Search Split/Decision on the App Store</p>
+            </div>
+
+            <div class="project-item" data-scroll>
+                <span class="project-tag">Athletics</span>
+                <h2 class="project-title">
+                    <span class="typing-text" data-text="Track & Cross Country">Track & Cross Country</span>
+                </h2>
+                <p class="project-desc">Running has shaped nearly every part of who I am teaching me discipline, patience, and the power of consistency. I've raced distances from the 400m to the 5K, earning all-county honors in cross country and track, and I'm continuously pushing to improve my personal bests and have fun :)</p>
                 <div class="project-links">
-                    <a href="https://nj.milesplit.com/athletes/12388736-veejhay-roy" class="running-link" onclick="window.open(this.href, '_blank'); return false;">MileSplit Profile</a>
+                    <a href="https://nj.milesplit.com/athletes/12388736-veejhay-roy" target="_blank" rel="noopener" class="link">MileSplit Profile</a>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
     <script src="script.js"></script>
