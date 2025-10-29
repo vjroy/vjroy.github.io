@@ -193,31 +193,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add 3D tilt effect to project boxes
     setup3DTiltEffect();
     
-    // Setup cursor gradient background
-    setupCursorGradient();
 });
 
-// Cursor-dependent gradient background
-function setupCursorGradient() {
-    const gradientBg = document.querySelector('.gradient-background');
-    if (!gradientBg) return;
-    
-    document.addEventListener('mousemove', (e) => {
-        const x = e.clientX;
-        const y = e.clientY;
-        
-        // Create a radial gradient that follows the cursor
-        const gradientSize = 400;
-        const gradient = `radial-gradient(circle ${gradientSize}px at ${x}px ${y}px, rgba(255, 255, 255, 1) 0%, rgba(225, 225, 225, 1) 100%)`;
-        
-        gradientBg.style.background = gradient;
-    });
-    
-    // Reset on mouse leave
-    document.addEventListener('mouseleave', () => {
-        gradientBg.style.background = '#ffffff';
-    });
-}
 
 // 3D tilt effect for project boxes
 function setup3DTiltEffect() {
