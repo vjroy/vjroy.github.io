@@ -130,10 +130,13 @@
 
         <!-- Projects Section -->
         <section class="projects" data-scroll>
-            <div class="projects-scroller" data-speed="fast" data-direction="left">
-                <div class="projects-scroller__inner">
-                    <div class="project-tilt-container">
-                        <div class="project-item">
+            <div class="projects-carousel" tabindex="0" aria-label="Project highlights carousel">
+                <button class="projects-carousel__nav projects-carousel__nav--prev" aria-label="Previous project">
+                    <span class="projects-carousel__nav-icon">&larr;</span>
+                </button>
+                <div class="projects-carousel__viewport">
+                    <div class="projects-carousel__track">
+                        <article class="project-item">
                             <span class="project-tag">Research</span>
                             <h2 class="project-title">
                                 <span class="typing-text" data-text="LLM Research">LLM Research</span>
@@ -142,10 +145,8 @@
                             <div class="project-links">
                                 <a href="LLM_Research (1).pdf" target="_blank" rel="noopener" class="link">View Research Paper</a>
                             </div>
-                        </div>
-                    </div>
-                    <div class="project-tilt-container">
-                        <div class="project-item">
+                        </article>
+                        <article class="project-item">
                             <span class="project-tag">Athletics</span>
                             <h2 class="project-title">
                                 <span class="typing-text" data-text="Track & Cross Country">Track & Cross Country</span>
@@ -154,10 +155,8 @@
                             <div class="project-links">
                                 <a href="https://nj.milesplit.com/athletes/12388736-veejhay-roy" target="_blank" rel="noopener" class="link">MileSplit Profile</a>
                             </div>
-                        </div>
-                    </div>
-                    <div class="project-tilt-container">
-                        <div class="project-item">
+                        </article>
+                        <article class="project-item">
                             <span class="project-tag">Machine Learning</span>
                             <h2 class="project-title">
                                 <span class="typing-text" data-text="Credit Card Fraud Detection">Credit Card Fraud Detection</span>
@@ -167,18 +166,22 @@
                                 <a href="https://github.com/yazganschool/finalproject" target="_blank" rel="noopener" class="link">GitHub Repository</a>
                                 <a href="Final Project.pdf" target="_blank" rel="noopener" class="link">View PDF</a>
                             </div>
-                        </div>
-                    </div>
-                    <div class="project-tilt-container">
-                        <div class="project-item">
+                        </article>
+                        <article class="project-item">
                             <span class="project-tag">Mobile App</span>
                             <h2 class="project-title">
                                 <span class="typing-text" data-text="SplitDecision">SplitDecision</span>
                             </h2>
                             <p class="project-desc">My friend and I created an app, SplitDecision, to help our coaches track workout splits for the cross country and track teams. It was a really fun project that enhanced my understanding in Swift, and it's been used by over 100+ athletes at my school.</p>
                             <p class="project-note">Search Split/Decision on the App Store</p>
-                        </div>
+                        </article>
                     </div>
+                </div>
+                <button class="projects-carousel__nav projects-carousel__nav--next" aria-label="Next project">
+                    <span class="projects-carousel__nav-icon">&rarr;</span>
+                </button>
+                <div class="projects-carousel__progress" aria-hidden="true">
+                    <span class="projects-carousel__counter"><span class="current">1</span><span class="separator">/</span><span class="total">4</span></span>
                 </div>
             </div>
         </section>

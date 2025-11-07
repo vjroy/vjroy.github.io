@@ -96,6 +96,7 @@ function blurFadeIn(element, options = {}) {
     }, delay * 1000);
 }
 
+
 // Loading Screen
 function setupLoadingScreen() {
     const loadingScreen = document.getElementById('loading-screen');
@@ -103,6 +104,14 @@ function setupLoadingScreen() {
     
     if (!loadingScreen || !numberTicker) return;
     
+    document.body.style.overflow = 'hidden';
+
+    loadingScreen.style.display = 'flex';
+    loadingScreen.style.opacity = '1';
+    loadingScreen.style.visibility = 'visible';
+    loadingScreen.style.pointerEvents = 'none';
+    loadingScreen.classList.remove('fade-out');
+
     // Make sure all content is visible from the start (behind loading screen)
     const hero = document.querySelector('.hero');
     if (hero) {
@@ -267,6 +276,8 @@ function setupLoadingScreen() {
                     loadingScreen.style.pointerEvents = 'none';
                     loadingScreen.style.zIndex = '-1';
                     document.body.style.overflow = '';
+
+                    document.dispatchEvent(new CustomEvent('loading-screen-complete'));
                 }, 400);
             }, 300);
         }
@@ -280,6 +291,7 @@ function setupLoadingScreen() {
 }
 
 // Simple slide-in animations
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize particles FIRST so background is ready
     // Particles Background - Magic UI style adapted for vanilla JS
@@ -308,11 +320,19 @@ document.addEventListener('DOMContentLoaded', function() {
             quantity: 100,
             staticity: 50,
             ease: 50,
-            size: 0.8, // Doubled from 0.4
-            color: '#000000', // Black particles on white background
+            size: 0.8,
+            sizeVariance: 2.5,
+            alphaMin: 1,
+            alphaMax: 1,
+            color: '#000000',
             vx: 0,
-            vy: 0
+            vy: 0,
+            maxScale: Infinity,
+            scrollStep: 120
         };
+
+        let scrollScale = 1;
+        let fallbackUnits = 0;
         
         const dpr = window.devicePixelRatio || 1;
         let canvasSize = { w: 0, h: 0 };
@@ -320,6 +340,28 @@ document.addEventListener('DOMContentLoaded', function() {
         let circles = [];
         let rafID = null;
         let resizeTimeout = null;
+        const colorObservers = new Set();
+        
+        function subscribeColorObserver(fn) {
+            if (typeof fn !== 'function') {
+                return () => {};
+            }
+            colorObservers.add(fn);
+            return () => {
+                colorObservers.delete(fn);
+            };
+        }
+        
+        function notifyColorObservers() {
+            if (!colorObservers.size) return;
+            colorObservers.forEach(observer => {
+                try {
+                    observer();
+                } catch (err) {
+                    console.error('Particle color observer error:', err);
+                }
+            });
+        }
         
         // Convert hex to RGB
         function hexToRgb(hex) {
@@ -334,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return [red, green, blue];
         }
         
-        const rgb = hexToRgb(config.color);
+        let rgb = hexToRgb(config.color);
         
         // Circle parameters
         function circleParams() {
@@ -342,25 +384,26 @@ document.addEventListener('DOMContentLoaded', function() {
             const y = Math.floor(Math.random() * canvasSize.h);
             const translateX = 0;
             const translateY = 0;
-            const pSize = Math.floor(Math.random() * 4) + config.size; // Doubled variation (0-4 instead of 0-2)
+            const baseSize = (Math.random() * config.sizeVariance) + config.size;
             const alpha = 0;
-            const targetAlpha = parseFloat((Math.random() * 0.6 + 0.1).toFixed(1));
+            const targetAlpha = config.alphaMax;
             const dx = (Math.random() - 0.5) * 0.1;
             const dy = (Math.random() - 0.5) * 0.1;
             const magnetism = 0.1 + Math.random() * 4;
             
             return {
-                x, y, translateX, translateY, size: pSize,
+                x, y, translateX, translateY, baseSize,
                 alpha, targetAlpha, dx, dy, magnetism
             };
         }
         
         // Draw circle
         function drawCircle(circle, update = false) {
-            const { x, y, translateX, translateY, size, alpha } = circle;
+            const { x, y, translateX, translateY, baseSize, alpha } = circle;
+            const displaySize = baseSize * scrollScale;
             ctx.translate(translateX, translateY);
             ctx.beginPath();
-            ctx.arc(x, y, size, 0, 2 * Math.PI);
+            ctx.arc(x, y, displaySize, 0, 2 * Math.PI);
             ctx.fillStyle = `rgba(${rgb.join(', ')}, ${alpha})`;
             ctx.fill();
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -374,6 +417,15 @@ document.addEventListener('DOMContentLoaded', function() {
         function clearContext() {
             ctx.clearRect(0, 0, canvasSize.w, canvasSize.h);
         }
+
+        function populateCircles() {
+            circles = [];
+            clearContext();
+            for (let i = 0; i < config.quantity; i++) {
+                const circle = circleParams();
+                drawCircle(circle);
+            }
+        }
         
         // Resize canvas
         function resizeCanvas() {
@@ -385,12 +437,8 @@ document.addEventListener('DOMContentLoaded', function() {
             canvas.style.width = `${canvasSize.w}px`;
             canvas.style.height = `${canvasSize.h}px`;
             ctx.scale(dpr, dpr);
-            
-            circles = [];
-            for (let i = 0; i < config.quantity; i++) {
-                const circle = circleParams();
-                drawCircle(circle);
-            }
+
+            populateCircles();
         }
         
         // Mouse move handler
@@ -418,23 +466,17 @@ document.addEventListener('DOMContentLoaded', function() {
             
             circles.forEach((circle, i) => {
                 // Handle alpha value
+                const displaySize = circle.baseSize * scrollScale;
                 const edge = [
-                    circle.x + circle.translateX - circle.size,
-                    canvasSize.w - circle.x - circle.translateX - circle.size,
-                    circle.y + circle.translateY - circle.size,
-                    canvasSize.h - circle.y - circle.translateY - circle.size
+                    circle.x + circle.translateX - displaySize,
+                    canvasSize.w - circle.x - circle.translateX - displaySize,
+                    circle.y + circle.translateY - displaySize,
+                    canvasSize.h - circle.y - circle.translateY - displaySize
                 ];
                 const closestEdge = edge.reduce((a, b) => Math.min(a, b));
                 const remapClosestEdge = parseFloat(remapValue(closestEdge, 0, 20, 0, 1).toFixed(2));
                 
-                if (remapClosestEdge > 1) {
-                    circle.alpha += 0.02;
-                    if (circle.alpha > circle.targetAlpha) {
-                        circle.alpha = circle.targetAlpha;
-                    }
-                } else {
-                    circle.alpha = circle.targetAlpha * remapClosestEdge;
-                }
+            circle.alpha = circle.targetAlpha;
                 
                 circle.x += circle.dx + config.vx;
                 circle.y += circle.dy + config.vy;
@@ -444,14 +486,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 drawCircle(circle, true);
                 
                 // Circle gets out of canvas
-                if (circle.x < -circle.size || circle.x > canvasSize.w + circle.size ||
-                    circle.y < -circle.size || circle.y > canvasSize.h + circle.size) {
+                if (circle.x < -displaySize || circle.x > canvasSize.w + displaySize ||
+                    circle.y < -displaySize || circle.y > canvasSize.h + displaySize) {
                     circles.splice(i, 1);
                     const newCircle = circleParams();
                     drawCircle(newCircle);
                 }
             });
             
+            notifyColorObservers();
             rafID = requestAnimationFrame(animate);
         }
         
@@ -460,7 +503,53 @@ document.addEventListener('DOMContentLoaded', function() {
             resizeCanvas();
             animate();
         }
+
+        function applyScrollScale() {
+            const scale = Math.pow(1.15, fallbackUnits);
+            scrollScale = Math.max(scale, 1);
+        }
+
+        function updateFallbackSteps(force = false, scrollPosition) {
+            const scrollY = typeof scrollPosition === 'number'
+                ? scrollPosition
+                : (window.scrollY || window.pageYOffset || 0);
+            const effectiveStep = config.scrollStep || 120;
+            const nextFallback = Math.max(0, scrollY / effectiveStep);
+            if (!force && Math.abs(nextFallback - fallbackUnits) < 1e-4) {
+                return;
+            }
+            fallbackUnits = nextFallback;
+            applyScrollScale();
+        }
+
+        applyScrollScale();
+        updateFallbackSteps(true);
         
+        function isPointDark(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            
+            if (x < 0 || y < 0 || x > canvasSize.w || y > canvasSize.h) {
+                return false;
+            }
+            
+            for (let i = 0; i < circles.length; i++) {
+                const circle = circles[i];
+                const radius = circle.baseSize * scrollScale;
+                const cx = circle.x + circle.translateX;
+                const cy = circle.y + circle.translateY;
+                const dx = x - cx;
+                const dy = y - cy;
+                
+                if ((dx * dx + dy * dy) <= radius * radius) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
         // Event listeners
         window.addEventListener('mousemove', onMouseMove);
         window.addEventListener('resize', () => {
@@ -469,15 +558,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 resizeCanvas();
             }, 200);
         });
-        
+        window.addEventListener('scroll', () => updateFallbackSteps(false), { passive: true });
         // Initialize
         init();
 
         console.log('Particles background initialized');
+        
+        window.particleField = {
+            isPointDark,
+            subscribe: subscribeColorObserver
+        };
     }
     
     setupParticles();
-    
+
     // Setup loading screen AFTER particles are initialized
     setupLoadingScreen();
     
@@ -547,181 +641,262 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const targetText = aboutText.textContent.trim();
         
-        // Split text into words for text reveal animation
+        // Split text into characters for fine-grained reveal & color control
         revealText.innerHTML = '';
-        const words = targetText.split(' ');
+        const characters = Array.from(targetText);
         
-        words.forEach((word, index) => {
-            const wordWrapper = document.createElement('span');
-            wordWrapper.className = 'reveal-word-wrapper';
+        const segmentElements = [];
+        
+        characters.forEach((char, index) => {
+            const wrapper = document.createElement('span');
+            wrapper.className = 'reveal-char-wrapper';
             
-            const actualSpan = document.createElement('span');
-            actualSpan.className = 'reveal-word-actual';
-            
-            const textNode = document.createTextNode(word);
-            actualSpan.appendChild(textNode);
-            wordWrapper.appendChild(actualSpan);
-            revealText.appendChild(wordWrapper);
-            
-            if (index < words.length - 1) {
-                revealText.appendChild(document.createTextNode(' '));
+            const charSpan = document.createElement('span');
+            charSpan.className = 'reveal-char-actual';
+            charSpan.dataset.index = index.toString();
+            if (char === ' ') {
+                charSpan.classList.add('reveal-char-space');
+                charSpan.innerHTML = '&nbsp;';
+            } else {
+                charSpan.textContent = char;
             }
+            wrapper.appendChild(charSpan);
+            revealText.appendChild(wrapper);
+            segmentElements.push(charSpan);
         });
         
-        // GSAP ScrollTrigger for split text animation with smooth transitions
         if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
             gsap.registerPlugin(ScrollTrigger);
-            
-            // Make section visible
-            aboutSection.classList.add('visible');
-            
-            // Animation only happens during sticky period
-            // Reduced distance so animation completes faster - each scroll has more weight
-            const animationDistance = 600; // Shorter distance doubles reveal speed
-            const wordElements = revealText.querySelectorAll('.reveal-word-actual');
-            
-            // Text reveal - starts when sticky, ends when animation completes
-            wordElements.forEach((wordEl, index) => {
-                // Distribute words evenly across the animation distance
-                const start = index / words.length;
-                const end = start + (1 / words.length);
-                
-                ScrollTrigger.create({
-                    trigger: aboutSection,
-                    start: 'top 60%', // starts exactly when element becomes sticky
-                    end: `+=${animationDistance}`, // Shorter distance = faster completion
-                    scrub: true,
-                    onUpdate: (self) => {
-                        const progress = self.progress;
-                        const wordProgress = Math.max(0, Math.min(1, (progress - start) / (end - start)));
-                        
-                        const baseOpacity = 0.25;
-                        const maxOpacity = 1;
-                        const computedOpacity = baseOpacity + (maxOpacity - baseOpacity) * wordProgress;
-                        wordEl.style.opacity = computedOpacity;
-                        
+
+            const totalSegments = segmentElements.length;
+            const animationDistance = 1200;
+
+            ScrollTrigger.create({
+                trigger: aboutSection,
+                start: 'top top',
+                end: `+=${animationDistance}`,
+                pin: true,
+                pinSpacing: true,
+                scrub: true,
+                onEnter: () => aboutSection.classList.add('visible'),
+                onEnterBack: () => aboutSection.classList.add('visible'),
+                onLeave: () => aboutSection.classList.remove('visible'),
+                onLeaveBack: () => aboutSection.classList.remove('visible'),
+                onUpdate: (self) => {
+                    if (!totalSegments) return;
+                    const progress = self.progress;
+                    segmentElements.forEach((segment, index) => {
+                        const start = index / totalSegments;
+                        const end = (index + 1) / totalSegments;
+                        const segmentProgress = gsap.utils.clamp(0, 1, (progress - start) / (end - start));
+                        segment.style.opacity = segmentProgress;
                         const minWeight = 300;
-                        const maxWeight = 700;
-                        const computedWeight = Math.round(minWeight + (maxWeight - minWeight) * wordProgress);
-                        wordEl.style.fontWeight = computedWeight;
-                    }
-                });
+                        const maxWeight = 650;
+                        const computedWeight = Math.round(minWeight + (maxWeight - minWeight) * segmentProgress);
+                        segment.style.fontWeight = computedWeight;
+                    });
+                }
             });
-            
-            console.log('Text reveal animation initialized with', words.length, 'words');
+
+            console.log('Text reveal animation initialized with', characters.length, 'characters');
         } else {
             console.error('GSAP or ScrollTrigger not loaded!');
         }
     }
 
-    // Magic UI Marquee - exact implementation adapted for vanilla JS
-    function setupProjectsBounce() {
-        const scroller = document.querySelector('.projects-scroller');
-        if (!scroller) return;
-        
-        // Check for reduced motion preference
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            return;
+    // Projects carousel with buttons + drag
+    function setupProjectsCarousel() {
+        const carousel = document.querySelector('.projects-carousel');
+        if (!carousel) return;
+
+        const viewport = carousel.querySelector('.projects-carousel__viewport');
+        const track = carousel.querySelector('.projects-carousel__track');
+        const slides = Array.from(track?.children || []);
+        const prevBtn = carousel.querySelector('.projects-carousel__nav--prev');
+        const nextBtn = carousel.querySelector('.projects-carousel__nav--next');
+        const counter = carousel.querySelector('.projects-carousel__counter');
+        const currentEl = counter?.querySelector('.current');
+        const totalEl = counter?.querySelector('.total');
+
+        if (!viewport || !track || slides.length === 0) return;
+
+        if (totalEl) totalEl.textContent = String(slides.length);
+
+        let index = 0;
+        let isDragging = false;
+        let pointerId = null;
+        let startX = 0;
+        let lastX = 0;
+        let dragDelta = 0;
+        let slideWidth = viewport.getBoundingClientRect().width;
+
+        const clampIndex = (value) => Math.max(0, Math.min(value, slides.length - 1));
+        const typedSlides = new WeakSet();
+
+        const runTypingAnimation = (slide) => {
+            if (!slide || typedSlides.has(slide)) return;
+            const titleElement = slide.querySelector('.project-title .typing-text');
+            if (!titleElement) {
+                typedSlides.add(slide);
+                return;
+            }
+            const text = titleElement.getAttribute('data-text') || titleElement.textContent;
+            if (!text) {
+                typedSlides.add(slide);
+                return;
+            }
+            typedSlides.add(slide);
+            typeWriter(titleElement, text, 45, 0);
+        };
+
+        const setTransition = (enable) => {
+            if (enable) {
+                track.style.transition = '';
+                track.classList.remove('is-dragging');
+            } else {
+                track.style.transition = 'none';
+                track.classList.add('is-dragging');
+            }
+        };
+
+        const update = (animate = true) => {
+            if (animate) setTransition(true);
+            const offset = -index * 100;
+            track.style.transform = `translate3d(${offset}%, 0, 0)`;
+            if (prevBtn) prevBtn.disabled = index === 0;
+            if (nextBtn) nextBtn.disabled = index === slides.length - 1;
+            if (currentEl) currentEl.textContent = String(index + 1);
+            runTypingAnimation(slides[index]);
+        };
+
+        const goToSlide = (newIndex) => {
+            const clamped = clampIndex(newIndex);
+            if (clamped === index) {
+                update();
+                return;
+            }
+            index = clamped;
+            update();
+        };
+
+        const snapAfterDrag = () => {
+            if (dragDelta <= -0.15 && index < slides.length - 1) {
+                index += 1;
+            } else if (dragDelta >= 0.15 && index > 0) {
+                index -= 1;
+            }
+            dragDelta = 0;
+            update();
+        };
+
+        const isInteractiveTarget = (target) => {
+            return !!target.closest('a, button, [data-carousel-interactive]');
+        };
+
+        const onPointerDown = (event) => {
+            if (isInteractiveTarget(event.target)) {
+                isDragging = false;
+                pointerId = null;
+                return;
+            }
+            if (event.pointerType === 'touch') {
+                event.preventDefault();
+            }
+            pointerId = event.pointerId;
+            isDragging = true;
+            startX = event.clientX;
+            lastX = startX;
+            dragDelta = 0;
+            slideWidth = viewport.getBoundingClientRect().width;
+            setTransition(false);
+        try {
+            viewport.setPointerCapture(pointerId);
+        } catch (err) {
+            console.warn('Pointer capture failed', err);
         }
-        
-        const scrollerInner = scroller.querySelector('.projects-scroller__inner');
-        if (!scrollerInner) return;
-        
-        // Wait for layout to ensure items are rendered
-        setTimeout(() => {
-            // Get all original items (project-tilt-container elements)
-            const originalItems = Array.from(scrollerInner.querySelectorAll('.project-tilt-container'));
-            if (originalItems.length === 0) {
-                console.warn('No project items found');
-                return;
-            }
-            
-            // Check if already set up
-            if (scroller.getAttribute('data-marquee-setup') === 'true') {
-                return;
-            }
-            
-            const innerStyles = window.getComputedStyle(scrollerInner);
-            const gapValue = parseFloat(innerStyles.columnGap || innerStyles.gap || '0');
-            const itemWidths = originalItems.map(item => {
-                const rect = item.getBoundingClientRect();
-                return rect.width || item.offsetWidth || 0;
-            });
-            const baseGroupWidth = itemWidths.reduce((sum, width) => sum + width, 0) + gapValue * Math.max(0, originalItems.length - 1);
-            const viewportWidth = window.innerWidth;
-            const duplicationFactor = Math.max(1, Math.ceil(viewportWidth / baseGroupWidth));
-            const groupWidth = baseGroupWidth * duplicationFactor;
-            const repeatCount = Math.max(3, Math.ceil((viewportWidth * 2) / groupWidth));
-            
-            // Clear the inner container
-            scrollerInner.innerHTML = '';
-            
-            // Magic UI approach: wrap items in marquee groups
-            for (let i = 0; i < repeatCount; i++) {
-                // Create a wrapper div for this copy (like Magic UI does)
-                const marqueeGroup = document.createElement('div');
-                marqueeGroup.className = 'marquee-group';
-                
-                for (let copyIndex = 0; copyIndex < duplicationFactor; copyIndex++) {
-                    originalItems.forEach(item => {
-                        const clone = item.cloneNode(true);
-                        // Make sure cloned items are visible
-                        const projectItem = clone.querySelector('.project-item');
-                        if (projectItem) {
-                            projectItem.classList.add('slide-in');
-                            projectItem.style.opacity = '1';
-                        }
-                        marqueeGroup.appendChild(clone);
-                    });
-                }
-                
-                scrollerInner.appendChild(marqueeGroup);
-            }
-            
-            // Mark as set up
-            scroller.setAttribute('data-marquee-setup', 'true');
-            
-            // Add animated attribute to trigger CSS animation
-            scroller.setAttribute("data-animated", "true");
-            
-            console.log('Magic UI marquee initialized - items:', originalItems.length, 'base width:', baseGroupWidth, 'duplicationFactor:', duplicationFactor, 'final group width:', groupWidth, 'viewport:', viewportWidth, 'groups:', repeatCount);
-        }, 200);
-    }
+        };
 
+        const onPointerMove = (event) => {
+            if (!isDragging || event.pointerId !== pointerId) return;
+            if (event.pointerType === 'touch') {
+                event.preventDefault();
+            }
+            lastX = event.clientX;
+            dragDelta = (lastX - startX) / slideWidth;
+            const offset = (-index + dragDelta) * 100;
+            track.style.transform = `translate3d(${offset}%, 0, 0)`;
+        };
 
-    // Slide-in animations with Intersection Observer
-    function setupSlideAnimations() {
-        const projectItems = document.querySelectorAll('.project-item');
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('slide-in');
-                    
-                    // Trigger typing animation for title
-                    if (!entry.target.classList.contains('typed')) {
-                        entry.target.classList.add('typed');
-                        const titleElement = entry.target.querySelector('.project-title .typing-text');
-                        if (titleElement) {
-                            const text = titleElement.getAttribute('data-text');
-                            if (text) {
-                                typeWriter(titleElement, text, 50, 0);
-                            }
-                        }
-                    }
+        const onPointerUp = (event) => {
+            if (!isDragging || event.pointerId !== pointerId) return;
+            if (pointerId !== null) {
+                try {
+                    viewport.releasePointerCapture(pointerId);
+                } catch (err) {
+                    console.warn('Pointer release failed', err);
                 }
-            });
-        }, {
-            threshold: 0.3
+            }
+            isDragging = false;
+            setTransition(true);
+            snapAfterDrag();
+            pointerId = null;
+        };
+
+        const onPointerCancel = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            if (pointerId !== null) {
+                try {
+                    viewport.releasePointerCapture(pointerId);
+                } catch (err) {
+                    console.warn('Pointer release failed', err);
+                }
+            }
+            pointerId = null;
+            setTransition(true);
+            update();
+        };
+
+        const handleKey = (event) => {
+            if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                goToSlide(index + 1);
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                goToSlide(index - 1);
+            }
+        };
+
+        viewport.style.touchAction = 'pan-y';
+        viewport.addEventListener('pointerdown', onPointerDown);
+        viewport.addEventListener('pointermove', onPointerMove);
+        viewport.addEventListener('pointerup', onPointerUp);
+        viewport.addEventListener('pointercancel', onPointerCancel);
+        viewport.addEventListener('pointerleave', (event) => {
+            if (!isDragging || event.pointerId !== pointerId) return;
+            onPointerCancel();
         });
 
-        projectItems.forEach(item => {
-            observer.observe(item);
+        if (prevBtn) prevBtn.addEventListener('click', () => goToSlide(index - 1));
+        if (nextBtn) nextBtn.addEventListener('click', () => goToSlide(index + 1));
+
+        carousel.addEventListener('keydown', handleKey);
+
+        window.addEventListener('resize', () => {
+            slideWidth = viewport.getBoundingClientRect().width;
+            update(false);
         });
+
+        update(false);
+        runTypingAnimation(slides[index]);
     }
 
     console.log('DOMContentLoaded - Starting animations...');
     
+    if (typeof ScrollTrigger !== 'undefined') {
+        setTimeout(() => ScrollTrigger.refresh(), 0);
+    }
+
     // Setup smooth cursor
     setupSmoothCursor();
     
@@ -730,7 +905,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Setting up about animation...');
     setupAboutAnimation();
     
-    setupSlideAnimations();
+    setupProjectsCarousel();
     
     // Initialize spinning text after a delay to ensure profile image is rendered
     setTimeout(() => {
@@ -738,10 +913,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
     
     // Initialize projects bouncing scroll
-    setTimeout(() => {
-        setupProjectsBounce();
-    }, 500);
-    
+    document.addEventListener('loading-screen-complete', () => {
+        if (typeof ScrollTrigger !== 'undefined') {
+            setTimeout(() => ScrollTrigger.refresh(), 0);
+        }
+    }, { once: true });
+
     // Initialize dock animation - but only once, will be re-initialized after loading screen
     // Don't call it here to avoid double initialization
     
@@ -1031,183 +1208,158 @@ function setupDockAnimation() {
 
 // Smooth Cursor - Physics-based cursor animation
 function setupSmoothCursor() {
-    const cursor = document.getElementById('smooth-cursor');
-    if (!cursor) return;
+    const cursorEl = document.getElementById('smooth-cursor');
+    if (!cursorEl) return;
 
-    // Spring configuration
-    const springConfig = {
-        damping: 45,
-        stiffness: 400,
-        mass: 1,
-        restDelta: 0.001,
-    };
+    document.body.classList.remove('cursor-hidden');
+    cursorEl.classList.remove('visible');
+    cursorEl.style.display = 'block';
 
-    const rotationSpringConfig = {
-        damping: 60,
-        stiffness: 300,
-        mass: 1,
-        restDelta: 0.001,
-    };
-
-    const scaleSpringConfig = {
-        damping: 35,
-        stiffness: 500,
-        mass: 1,
-        restDelta: 0.001,
-    };
-
-    // Spring physics implementation
-    class Spring {
-        constructor(value, config) {
-            this.value = value;
-            this.velocity = 0;
-            this.target = value;
-            this.config = config;
-        }
-
-        setTarget(target) {
-            this.target = target;
-        }
-
-        update(deltaTime) {
-            const delta = this.target - this.value;
-            const springForce = delta * this.config.stiffness;
-            const dampingForce = -this.velocity * this.config.damping;
-            const acceleration = (springForce + dampingForce) / this.config.mass;
-
-            this.velocity += acceleration * deltaTime;
-            this.value += this.velocity * deltaTime;
-
-            // Check if at rest
-            if (Math.abs(delta) < this.config.restDelta && Math.abs(this.velocity) < this.config.restDelta) {
-                this.value = this.target;
-                this.velocity = 0;
-            }
-
-            return this.value;
-        }
+    if (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        cursorEl.style.display = 'none';
+        return;
     }
 
-    // Initialize springs
-    const cursorX = new Spring(0, springConfig);
-    const cursorY = new Spring(0, springConfig);
-    const rotation = new Spring(0, rotationSpringConfig);
-    const scale = new Spring(1, scaleSpringConfig);
+    document.body.classList.add('cursor-hidden');
+    cursorEl.style.display = 'block';
 
-    // State
-    let lastMousePos = { x: 0, y: 0 };
-    let velocity = { x: 0, y: 0 };
-    let lastMouseUpdateTime = Date.now();
-    let lastAnimationTime = Date.now();
-    let previousAngle = 0;
-    let accumulatedRotation = 0;
-    let isMoving = false;
+    const state = {
+        targetX: window.innerWidth / 2,
+        targetY: window.innerHeight / 2,
+        currentX: window.innerWidth / 2,
+        currentY: window.innerHeight / 2,
+        velocityX: 0,
+        velocityY: 0,
+        rotation: 0,
+        rotationVelocity: 0,
+        scale: 1,
+        scaleVelocity: 0,
+        lastMoveTime: performance.now(),
+        visible: false,
+        restRotation: 0
+    };
+
+    const SPRING = {
+        position: { stiffness: 0.12, damping: 0.82 },
+        rotation: { stiffness: 0.08, damping: 0.8 },
+        scale: { stiffness: 0.18, damping: 0.7 }
+    };
+    const POSITION_SMOOTHING = 0.35;
+
     let rafId = null;
-    let animationFrameId = null;
 
-    // Make cursor visible
-    cursor.classList.add('visible');
-
-    // Update velocity
-    function updateVelocity(currentPos) {
-        const currentTime = Date.now();
-        const deltaTime = currentTime - lastMouseUpdateTime;
-
-        if (deltaTime > 0) {
-            velocity.x = (currentPos.x - lastMousePos.x) / deltaTime;
-            velocity.y = (currentPos.y - lastMousePos.y) / deltaTime;
+    const showCursor = () => {
+        if (!state.visible) {
+            cursorEl.classList.add('visible');
+            state.visible = true;
         }
-
-        lastMouseUpdateTime = currentTime;
-        lastMousePos = currentPos;
-    }
-
-    // Smooth mouse move handler
-    function smoothMouseMove(e) {
-        // Use clientX/clientY for viewport coordinates (works with fixed positioning)
-        const currentPos = { x: e.clientX, y: e.clientY };
-        updateVelocity(currentPos);
-
-        const speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-
-        cursorX.setTarget(currentPos.x);
-        cursorY.setTarget(currentPos.y);
-
-        if (speed > 0.1) {
-            const currentAngle = Math.atan2(velocity.y, velocity.x) * (180 / Math.PI) + 90;
-
-            let angleDiff = currentAngle - previousAngle;
-            if (angleDiff > 180) angleDiff -= 360;
-            if (angleDiff < -180) angleDiff += 360;
-
-            accumulatedRotation += angleDiff;
-            rotation.setTarget(accumulatedRotation);
-            previousAngle = currentAngle;
-
-            scale.setTarget(0.95);
-            isMoving = true;
-
-            clearTimeout(scale.timeout);
-            scale.timeout = setTimeout(() => {
-                scale.setTarget(1);
-                isMoving = false;
-            }, 150);
-        }
-    }
-    
-    // Also track mouse on scroll to keep cursor visible
-    function handleScroll() {
-        // Force cursor to stay visible during scroll
-        if (cursor) {
-            cursor.style.display = 'block';
-            cursor.style.visibility = 'visible';
-        }
-    }
-
-    // Throttled mouse move with RAF
-    function throttledMouseMove(e) {
-        if (rafId) return;
-
-        rafId = requestAnimationFrame(() => {
-            smoothMouseMove(e);
-            rafId = null;
-        });
-    }
-
-    // Animation loop
-    function animate() {
-        const currentTime = Date.now();
-        const deltaTime = Math.min(0.033, (currentTime - lastAnimationTime) / 1000); // Cap at ~30ms (30fps minimum)
-        lastAnimationTime = currentTime;
-
-        const x = cursorX.update(deltaTime);
-        const y = cursorY.update(deltaTime);
-        const rot = rotation.update(deltaTime);
-        const sc = scale.update(deltaTime);
-
-        cursor.style.left = `${x}px`;
-        cursor.style.top = `${y}px`;
-        cursor.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${sc})`;
-
-        animationFrameId = requestAnimationFrame(animate);
-    }
-
-    // Start animation loop
-    animate();
-
-    // Event listeners
-    window.addEventListener('mousemove', throttledMouseMove);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('wheel', handleScroll, { passive: true });
-
-    // Cleanup function
-    return () => {
-        window.removeEventListener('mousemove', throttledMouseMove);
-        window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('wheel', handleScroll);
-        if (rafId) cancelAnimationFrame(rafId);
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
+
+    const hideCursor = () => {
+        state.visible = false;
+        cursorEl.classList.remove('visible');
+    };
+
+    const handleMouseMove = (event) => {
+        if (!state.visible) {
+            state.targetX = event.clientX;
+            state.targetY = event.clientY;
+            state.currentX = event.clientX;
+            state.currentY = event.clientY;
+        } else {
+            state.targetX += (event.clientX - state.targetX) * POSITION_SMOOTHING;
+            state.targetY += (event.clientY - state.targetY) * POSITION_SMOOTHING;
+        }
+        state.lastMoveTime = performance.now();
+        showCursor();
+        if (!rafId) rafId = requestAnimationFrame(update);
+    };
+
+    const handleMouseLeave = () => {
+        hideCursor();
+    };
+
+    const handleMouseEnter = (event) => {
+        state.targetX = event.clientX;
+        state.targetY = event.clientY;
+        state.currentX = event.clientX;
+        state.currentY = event.clientY;
+        state.velocityX = 0;
+        state.velocityY = 0;
+        showCursor();
+        if (!rafId) rafId = requestAnimationFrame(update);
+    };
+
+    const update = () => {
+        rafId = null;
+        const now = performance.now();
+        const dt = Math.min((now - (state.prevTime || now)) / 16.666, 1.5);
+        state.prevTime = now;
+
+        const dx = state.targetX - state.currentX;
+        const dy = state.targetY - state.currentY;
+
+        state.velocityX += dx * SPRING.position.stiffness * dt;
+        state.velocityY += dy * SPRING.position.stiffness * dt;
+
+        state.velocityX *= Math.pow(1 - SPRING.position.damping, dt);
+        state.velocityY *= Math.pow(1 - SPRING.position.damping, dt);
+
+        state.currentX += state.velocityX;
+        state.currentY += state.velocityY;
+        if (Math.abs(state.velocityX) < 0.00005) state.velocityX = 0;
+        if (Math.abs(state.velocityY) < 0.00005) state.velocityY = 0;
+
+        const speed = Math.hypot(state.velocityX, state.velocityY);
+        const rawAngle = (Math.atan2(state.velocityY, state.velocityX) * 180 / Math.PI) + 90;
+        if (speed > 0.05) {
+            const snapped = Math.round(rawAngle / 90) * 90;
+            state.restRotation = ((snapped % 360) + 360) % 360;
+        }
+        let targetRotation = state.restRotation;
+        let rotationDelta = targetRotation - state.rotation;
+        rotationDelta = ((rotationDelta + 180) % 360) - 180;
+        state.rotationVelocity += rotationDelta * SPRING.rotation.stiffness * dt;
+        state.rotationVelocity *= Math.pow(1 - SPRING.rotation.damping, dt);
+        state.rotation += state.rotationVelocity;
+        if (Math.abs(state.rotationVelocity) < 0.001 && speed < 0.02) {
+            state.rotationVelocity = 0;
+            state.rotation += (state.restRotation - state.rotation) * 0.3 * dt;
+        }
+        if (Math.abs(state.rotation - state.restRotation) < 0.01 && speed < 0.02) {
+            state.rotation = state.restRotation;
+        }
+
+        const timeSinceMove = now - state.lastMoveTime;
+        const targetScale = timeSinceMove < 160 ? 0.94 : 1;
+        const scaleDelta = targetScale - state.scale;
+        state.scaleVelocity += scaleDelta * SPRING.scale.stiffness * dt;
+        state.scaleVelocity *= Math.pow(1 - SPRING.scale.damping, dt);
+        state.scale += state.scaleVelocity;
+        if (Math.abs(state.scale - 1) < 0.001 && timeSinceMove >= 160) {
+            state.scale = 1;
+            state.scaleVelocity = 0;
+        }
+
+        cursorEl.style.transform = `translate3d(${state.currentX}px, ${state.currentY}px, 0) rotate(${state.rotation}deg) scale(${state.scale})`;
+
+        if (state.visible || Math.abs(state.scale - 1) > 0.0001 || Math.abs(state.rotationVelocity) > 0.0001 || Math.abs(state.velocityX) > 0.0001 || Math.abs(state.velocityY) > 0.0001) {
+            rafId = requestAnimationFrame(update);
+        }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mouseenter', handleMouseEnter, { passive: true });
+    window.addEventListener('mouseleave', handleMouseLeave, { passive: true });
+    window.addEventListener('mousedown', () => {
+        state.lastMoveTime = performance.now();
+        state.scale = Math.max(state.scale * 0.94, 0.85);
+        if (!rafId) rafId = requestAnimationFrame(update);
+    }, { passive: true });
+    window.addEventListener('mouseup', () => {
+        state.lastMoveTime = performance.now();
+        if (!rafId) rafId = requestAnimationFrame(update);
+    }, { passive: true });
 }
 
 
