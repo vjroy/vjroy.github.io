@@ -1011,6 +1011,18 @@ html {
     text-wrap: pretty;
 }
 
+.about-text-reveal::before {
+    content: '';
+    position: absolute;
+    inset: clamp(-24px, -5vw, -40px);
+    border-radius: clamp(32px, 8vw, 52px);
+    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.35), transparent 60%);
+    filter: blur(45px);
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: -2;
+}
+
 .about-text-reveal .reveal-char-wrapper {
     display: inline;
 }
@@ -1042,17 +1054,6 @@ html {
     z-index: -1;
 }
 
-.about-text-reveal::before {
-    content: '';
-    position: absolute;
-    inset: clamp(-24px, -5vw, -40px);
-    border-radius: clamp(32px, 8vw, 52px);
-    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.35), transparent 60%);
-    filter: blur(45px);
-    opacity: 0.45;
-    pointer-events: none;
-    z-index: -2;
-}
 
 /* Projects Carousel */
 .projects {
@@ -1060,7 +1061,32 @@ html {
     width: 100%;
     padding: clamp(8rem, 12vw, 12rem) 0;
     background: transparent;
-    color: rgba(247, 247, 247, 0.95);
+}
+
+.projects-carousel__viewport::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 25%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+    pointer-events: none;
+    z-index: 10;
+    border-radius: clamp(16px, 3vw, 24px) clamp(16px, 3vw, 24px) 0 0;
+}
+
+.projects-carousel__viewport::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 25%;
+    background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+    pointer-events: none;
+    z-index: 10;
+    border-radius: 0 0 clamp(16px, 3vw, 24px) clamp(16px, 3vw, 24px);
 }
 
 .projects-carousel {
@@ -1074,18 +1100,18 @@ html {
 .projects-carousel__viewport {
     overflow: hidden;
     border-radius: clamp(16px, 3vw, 24px);
+    height: 600px;
+    max-height: 80vh;
+    position: relative;
+    isolation: isolate;
 }
 
 .projects-carousel__track {
     display: flex;
+    flex-direction: column;
     transform: translate3d(0, 0, 0);
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: none; /* No transition for smooth infinite scroll */
     will-change: transform;
-}
-
-.projects-carousel__track.is-dragging {
-    transition: none;
-    cursor: grabbing;
 }
 
 .projects-carousel__nav {
@@ -1165,13 +1191,24 @@ html {
 }
 
 .projects-carousel .project-item {
+    min-height: 500px;
     min-width: 100%;
     padding: clamp(2.25rem, 5vw, 3.5rem);
     display: flex;
     flex-direction: column;
     gap: clamp(1.4rem, 2vw, 2.25rem);
-    color: rgba(247, 247, 247, 0.95);
-    background: #000000;
+    color: #0a0a0a;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.15),
+        inset 0 1px 1px rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: clamp(16px, 3vw, 24px);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
 }
 
 .projects-carousel .project-tag {
@@ -1179,7 +1216,7 @@ html {
     text-transform: uppercase;
     letter-spacing: 0.7em;
     font-size: clamp(0.7rem, 1vw, 0.85rem);
-    color: rgba(247, 247, 247, 0.55);
+    color: rgba(10, 10, 10, 0.6);
 }
 
 .projects-carousel .project-title {
@@ -1190,15 +1227,14 @@ html {
     letter-spacing: 0.18em;
     text-wrap: balance;
     position: relative;
-    -webkit-text-stroke: 1px rgba(247, 247, 247, 0.85);
-    color: transparent;
+    color: #0a0a0a;
 }
 
 .projects-carousel .project-desc,
 .projects-carousel .project-note {
     font-size: clamp(1.05rem, 1.8vw, 1.2rem);
     line-height: 1.85;
-    color: rgba(247, 247, 247, 0.92);
+    color: #0a0a0a;
     text-wrap: pretty;
 }
 
@@ -1206,7 +1242,7 @@ html {
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.25em;
-    color: rgba(231, 233, 235, 0.6);
+    color: rgba(10, 10, 10, 0.7);
 }
 
 .projects-carousel .project-links {
@@ -1218,17 +1254,17 @@ html {
 
 .projects-carousel .project-links .link {
     padding-bottom: 0.2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    border-bottom: 1px solid rgba(10, 10, 10, 0.3);
     font-weight: 500;
     letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.92);
+    color: #0a0a0a;
     text-transform: uppercase;
     font-size: 0.85rem;
 }
 
 .projects-carousel .project-links .link:hover {
-    color: rgba(255, 255, 255, 1);
-    border-color: rgba(255, 255, 255, 0.75);
+    color: #0a0a0a;
+    border-color: rgba(10, 10, 10, 0.6);
 }
 
 @media (max-width: 768px) {
@@ -1253,8 +1289,7 @@ html {
 
 
 .projects-carousel .project-item:hover .project-tag {
-    color: rgba(255, 255, 255, 0.92);
-    text-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+    color: rgba(10, 10, 10, 0.9);
 }
 
 .projects-carousel .project-item:active {

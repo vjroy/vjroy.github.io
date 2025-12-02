@@ -324,14 +324,29 @@ document.addEventListener('DOMContentLoaded', function() {
             sizeVariance: 2.5,
             alphaMin: 1,
             alphaMax: 1,
-            color: '#000000',
             vx: 0,
             vy: 0,
             maxScale: Infinity,
             scrollStep: 120
         };
 
-        let scrollScale = 1;
+        // Cold color palette (blues and purples)
+        const coldColors = [
+            [100, 149, 237], // Cornflower blue
+            [138, 43, 226],  // Blue violet
+            [72, 61, 139],   // Dark slate blue
+            [123, 104, 238], // Medium slate blue
+            [106, 90, 205],  // Slate blue
+            [65, 105, 225],  // Royal blue
+            [75, 0, 130],    // Indigo
+            [128, 0, 128],   // Purple
+            [148, 0, 211],   // Dark violet
+            [186, 85, 211],  // Medium orchid
+            [147, 112, 219], // Medium purple
+            [102, 51, 153]   // Rebecca purple
+        ];
+
+        let scrollScale = 1; // Always stay at 1, no scaling on scroll
         let fallbackUnits = 0;
         
         const dpr = window.devicePixelRatio || 1;
@@ -363,21 +378,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Convert hex to RGB
-        function hexToRgb(hex) {
-            hex = hex.replace('#', '');
-            if (hex.length === 3) {
-                hex = hex.split('').map(char => char + char).join('');
-            }
-            const hexInt = parseInt(hex, 16);
-            const red = (hexInt >> 16) & 255;
-            const green = (hexInt >> 8) & 255;
-            const blue = hexInt & 255;
-            return [red, green, blue];
-        }
-        
-        let rgb = hexToRgb(config.color);
-        
         // Circle parameters
         function circleParams() {
             const x = Math.floor(Math.random() * canvasSize.w);
@@ -390,21 +390,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const dx = (Math.random() - 0.5) * 0.1;
             const dy = (Math.random() - 0.5) * 0.1;
             const magnetism = 0.1 + Math.random() * 4;
+            // Randomly assign a cold color to each particle
+            const colorIndex = Math.floor(Math.random() * coldColors.length);
+            const color = coldColors[colorIndex];
             
             return {
                 x, y, translateX, translateY, baseSize,
-                alpha, targetAlpha, dx, dy, magnetism
+                alpha, targetAlpha, dx, dy, magnetism, color
             };
         }
         
         // Draw circle
         function drawCircle(circle, update = false) {
-            const { x, y, translateX, translateY, baseSize, alpha } = circle;
+            const { x, y, translateX, translateY, baseSize, alpha, color } = circle;
             const displaySize = baseSize * scrollScale;
             ctx.translate(translateX, translateY);
             ctx.beginPath();
             ctx.arc(x, y, displaySize, 0, 2 * Math.PI);
-            ctx.fillStyle = `rgba(${rgb.join(', ')}, ${alpha})`;
+            ctx.fillStyle = `rgba(${color.join(', ')}, ${alpha})`;
             ctx.fill();
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             
@@ -505,21 +508,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function applyScrollScale() {
-            const scale = Math.pow(1.15, fallbackUnits);
-            scrollScale = Math.max(scale, 1);
+            // Disabled - keep scrollScale at 1
+            scrollScale = 1;
         }
 
         function updateFallbackSteps(force = false, scrollPosition) {
-            const scrollY = typeof scrollPosition === 'number'
-                ? scrollPosition
-                : (window.scrollY || window.pageYOffset || 0);
-            const effectiveStep = config.scrollStep || 120;
-            const nextFallback = Math.max(0, scrollY / effectiveStep);
-            if (!force && Math.abs(nextFallback - fallbackUnits) < 1e-4) {
-                return;
-            }
-            fallbackUnits = nextFallback;
-            applyScrollScale();
+            // Disabled - no scroll-based scaling
+            scrollScale = 1;
         }
 
         applyScrollScale();
@@ -558,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 resizeCanvas();
             }, 200);
         });
-        window.addEventListener('scroll', () => updateFallbackSteps(false), { passive: true });
+        // Removed scroll listener - no scaling on scroll
         // Initialize
         init();
 
@@ -704,7 +699,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Projects carousel with buttons + drag
+    // Projects carousel with infinite auto-scroll and slowdown on hover
     function setupProjectsCarousel() {
         const carousel = document.querySelector('.projects-carousel');
         if (!carousel) return;
@@ -715,22 +710,37 @@ document.addEventListener('DOMContentLoaded', function() {
         const prevBtn = carousel.querySelector('.projects-carousel__nav--prev');
         const nextBtn = carousel.querySelector('.projects-carousel__nav--next');
         const counter = carousel.querySelector('.projects-carousel__counter');
-        const currentEl = counter?.querySelector('.current');
-        const totalEl = counter?.querySelector('.total');
 
         if (!viewport || !track || slides.length === 0) return;
 
-        if (totalEl) totalEl.textContent = String(slides.length);
+        // Hide navigation buttons and counter for infinite scroll
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        if (counter) counter.style.display = 'none';
 
-        let index = 0;
-        let isDragging = false;
-        let pointerId = null;
-        let startX = 0;
-        let lastX = 0;
-        let dragDelta = 0;
-        let slideWidth = viewport.getBoundingClientRect().width;
+        // Clone slides multiple times for seamless infinite scroll
+        // We need enough duplicates to ensure seamless looping
+        slides.forEach(slide => {
+            const clone1 = slide.cloneNode(true);
+            track.appendChild(clone1);
+        });
+        
+        // Get all slides including originals and first clones
+        const allSlides = Array.from(track.children);
+        
+        // Duplicate once more (now we have 3 sets total)
+        allSlides.forEach(slide => {
+            const clone2 = slide.cloneNode(true);
+            track.appendChild(clone2);
+        });
+        
+        // Add one more set to ensure we have plenty of buffer
+        const allSlidesAgain = Array.from(track.children);
+        allSlidesAgain.forEach(slide => {
+            const clone3 = slide.cloneNode(true);
+            track.appendChild(clone3);
+        });
 
-        const clampIndex = (value) => Math.max(0, Math.min(value, slides.length - 1));
         const typedSlides = new WeakSet();
 
         const runTypingAnimation = (slide) => {
@@ -749,146 +759,151 @@ document.addEventListener('DOMContentLoaded', function() {
             typeWriter(titleElement, text, 45, 0);
         };
 
-        const setTransition = (enable) => {
-            if (enable) {
-                track.style.transition = '';
-                track.classList.remove('is-dragging');
+        let scrollPosition = 0;
+        let scrollSpeed = 0.75; // Base scroll speed (pixels per frame) - increased for faster scrolling
+        let targetSpeed = scrollSpeed;
+        let animationFrameId = null;
+        let isPaused = false;
+        const totalSlides = slides.length;
+        let viewportHeight = 600; // Default viewport height
+        
+        // Calculate total height of one set of slides accurately
+        let singleSetHeight = 0;
+        const calculateHeight = () => {
+            // Get viewport height
+            const viewportRect = viewport.getBoundingClientRect();
+            viewportHeight = viewportRect.height || 600;
+            
+            // More accurate calculation: measure from first slide to first duplicate slide
+            // This ensures perfect alignment for seamless looping
+            const firstSlide = track.children[0];
+            const firstDuplicateSlide = track.children[totalSlides];
+            
+            if (firstSlide && firstDuplicateSlide) {
+                const firstRect = firstSlide.getBoundingClientRect();
+                const duplicateRect = firstDuplicateSlide.getBoundingClientRect();
+                singleSetHeight = duplicateRect.top - firstRect.top;
             } else {
-                track.style.transition = 'none';
-                track.classList.add('is-dragging');
-            }
-        };
-
-        const update = (animate = true) => {
-            if (animate) setTransition(true);
-            const offset = -index * 100;
-            track.style.transform = `translate3d(${offset}%, 0, 0)`;
-            if (prevBtn) prevBtn.disabled = index === 0;
-            if (nextBtn) nextBtn.disabled = index === slides.length - 1;
-            if (currentEl) currentEl.textContent = String(index + 1);
-            runTypingAnimation(slides[index]);
-        };
-
-        const goToSlide = (newIndex) => {
-            const clamped = clampIndex(newIndex);
-            if (clamped === index) {
-                update();
-                return;
-            }
-            index = clamped;
-            update();
-        };
-
-        const snapAfterDrag = () => {
-            if (dragDelta <= -0.15 && index < slides.length - 1) {
-                index += 1;
-            } else if (dragDelta >= 0.15 && index > 0) {
-                index -= 1;
-            }
-            dragDelta = 0;
-            update();
-        };
-
-        const isInteractiveTarget = (target) => {
-            return !!target.closest('a, button, [data-carousel-interactive]');
-        };
-
-        const onPointerDown = (event) => {
-            if (isInteractiveTarget(event.target)) {
-                isDragging = false;
-                pointerId = null;
-                return;
-            }
-            if (event.pointerType === 'touch') {
-                event.preventDefault();
-            }
-            pointerId = event.pointerId;
-            isDragging = true;
-            startX = event.clientX;
-            lastX = startX;
-            dragDelta = 0;
-            slideWidth = viewport.getBoundingClientRect().width;
-            setTransition(false);
-        try {
-            viewport.setPointerCapture(pointerId);
-        } catch (err) {
-            console.warn('Pointer capture failed', err);
-        }
-        };
-
-        const onPointerMove = (event) => {
-            if (!isDragging || event.pointerId !== pointerId) return;
-            if (event.pointerType === 'touch') {
-                event.preventDefault();
-            }
-            lastX = event.clientX;
-            dragDelta = (lastX - startX) / slideWidth;
-            const offset = (-index + dragDelta) * 100;
-            track.style.transform = `translate3d(${offset}%, 0, 0)`;
-        };
-
-        const onPointerUp = (event) => {
-            if (!isDragging || event.pointerId !== pointerId) return;
-            if (pointerId !== null) {
-                try {
-                    viewport.releasePointerCapture(pointerId);
-                } catch (err) {
-                    console.warn('Pointer release failed', err);
+                // Fallback: calculate by summing individual slides
+                singleSetHeight = 0;
+                for (let i = 0; i < totalSlides; i++) {
+                    const slide = track.children[i];
+                    if (slide) {
+                        const rect = slide.getBoundingClientRect();
+                        singleSetHeight += rect.height || 500;
+                        
+                        if (i < totalSlides - 1) {
+                            const trackStyle = window.getComputedStyle(track);
+                            const gap = parseFloat(trackStyle.gap) || 
+                                       parseFloat(trackStyle.rowGap) || 0;
+                            if (gap > 0) {
+                                singleSetHeight += gap;
+                            }
+                        }
+                    }
                 }
             }
-            isDragging = false;
-            setTransition(true);
-            snapAfterDrag();
-            pointerId = null;
+            
+            // Ensure we have a valid height
+            if (singleSetHeight < 100) {
+                singleSetHeight = totalSlides * 520; // Fallback estimate
+            }
         };
-
-        const onPointerCancel = () => {
-            if (!isDragging) return;
-            isDragging = false;
-            if (pointerId !== null) {
-                try {
-                    viewport.releasePointerCapture(pointerId);
-                } catch (err) {
-                    console.warn('Pointer release failed', err);
+        
+        // Initial calculation - use estimated height first
+        singleSetHeight = totalSlides * 520; // Estimate (500px + 20px gap)
+        
+        // Recalculate with actual heights after render - use requestAnimationFrame for better timing
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                calculateHeight();
+                // Ensure we have accurate height before starting
+                if (singleSetHeight < 100) {
+                    singleSetHeight = totalSlides * 520;
                 }
-            }
-            pointerId = null;
-            setTransition(true);
-            update();
-        };
-
-        const handleKey = (event) => {
-            if (event.key === 'ArrowRight') {
-                event.preventDefault();
-                goToSlide(index + 1);
-            } else if (event.key === 'ArrowLeft') {
-                event.preventDefault();
-                goToSlide(index - 1);
-            }
-        };
-
-        viewport.style.touchAction = 'pan-y';
-        viewport.addEventListener('pointerdown', onPointerDown);
-        viewport.addEventListener('pointermove', onPointerMove);
-        viewport.addEventListener('pointerup', onPointerUp);
-        viewport.addEventListener('pointercancel', onPointerCancel);
-        viewport.addEventListener('pointerleave', (event) => {
-            if (!isDragging || event.pointerId !== pointerId) return;
-            onPointerCancel();
+            });
         });
 
-        if (prevBtn) prevBtn.addEventListener('click', () => goToSlide(index - 1));
-        if (nextBtn) nextBtn.addEventListener('click', () => goToSlide(index + 1));
+        // Set track to no transition for smooth animation
+        track.style.transition = 'none';
 
-        carousel.addEventListener('keydown', handleKey);
+        const animate = () => {
+            if (!isPaused) {
+                // Smoothly interpolate to target speed
+                scrollSpeed += (targetSpeed - scrollSpeed) * 0.15;
+                
+                scrollPosition += scrollSpeed;
+                
+                // Use modulo for seamless infinite loop
+                // This wraps the position seamlessly when it reaches singleSetHeight
+                if (singleSetHeight > 0) {
+                    scrollPosition = scrollPosition % singleSetHeight;
+                }
+            }
+            
+            track.style.transform = `translate3d(0, -${scrollPosition}px, 0)`;
+            
+            animationFrameId = requestAnimationFrame(animate);
+        };
 
+        // Pause on hover (like marquee example)
+        viewport.addEventListener('mouseenter', () => {
+            isPaused = true;
+        });
+
+        viewport.addEventListener('mouseleave', () => {
+            isPaused = false;
+            targetSpeed = 0.75; // Resume normal speed
+        });
+
+        // Also pause on touch
+        let touchStartTime = 0;
+        viewport.addEventListener('touchstart', () => {
+            isPaused = true;
+            touchStartTime = Date.now();
+        });
+
+        viewport.addEventListener('touchend', () => {
+            setTimeout(() => {
+                isPaused = false;
+                targetSpeed = 0.75;
+            }, 200);
+        });
+
+        // Run typing animations on visible slides
+        const checkVisibleSlides = () => {
+            const currentAllSlides = Array.from(track.children);
+            currentAllSlides.forEach((slide) => {
+                const slideRect = slide.getBoundingClientRect();
+                const viewportRect = viewport.getBoundingClientRect();
+                
+                // Check if slide is in viewport (vertical)
+                if (slideRect.top < viewportRect.bottom && slideRect.bottom > viewportRect.top) {
+                    runTypingAnimation(slide);
+                }
+            });
+        };
+        
+        // Recalculate slide heights on resize
+        const recalculateHeights = () => {
+            calculateHeight();
+        };
+
+        // Check visible slides periodically
+        setInterval(checkVisibleSlides, 500);
+
+        // Start animation
+        animate();
+
+        // Handle resize
         window.addEventListener('resize', () => {
-            slideWidth = viewport.getBoundingClientRect().width;
-            update(false);
+            recalculateHeights();
         });
 
-        update(false);
-        runTypingAnimation(slides[index]);
+        // Run typing on initial visible slide
+        if (slides[0]) {
+            runTypingAnimation(slides[0]);
+        }
     }
 
     console.log('DOMContentLoaded - Starting animations...');
