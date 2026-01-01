@@ -330,20 +330,20 @@ document.addEventListener('DOMContentLoaded', function() {
             scrollStep: 120
         };
 
-        // Cold color palette (blues and purples)
+        // Black and white color palette
         const coldColors = [
-            [100, 149, 237], // Cornflower blue
-            [138, 43, 226],  // Blue violet
-            [72, 61, 139],   // Dark slate blue
-            [123, 104, 238], // Medium slate blue
-            [106, 90, 205],  // Slate blue
-            [65, 105, 225],  // Royal blue
-            [75, 0, 130],    // Indigo
-            [128, 0, 128],   // Purple
-            [148, 0, 211],   // Dark violet
-            [186, 85, 211],  // Medium orchid
-            [147, 112, 219], // Medium purple
-            [102, 51, 153]   // Rebecca purple
+            [0, 0, 0],       // Black
+            [20, 20, 20],    // Very dark gray
+            [40, 40, 40],    // Dark gray
+            [60, 60, 60],    // Medium dark gray
+            [80, 80, 80],    // Medium gray
+            [120, 120, 120], // Medium light gray
+            [160, 160, 160], // Light gray
+            [200, 200, 200], // Very light gray
+            [220, 220, 220], // Near white
+            [240, 240, 240], // Almost white
+            [250, 250, 250], // Very light gray
+            [255, 255, 255]  // White
         ];
 
         let scrollScale = 1; // Always stay at 1, no scaling on scroll
