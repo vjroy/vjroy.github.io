@@ -622,84 +622,74 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     }
 
-    // About section with scroll-based glitch effect
-    // Text Reveal - Magic UI style adapted for vanilla JS
+    // About section: pin the card so it stays on screen while we scroll through the section; reveal characters with scroll progress.
     function setupAboutAnimation() {
         const aboutSection = document.querySelector('.about');
-        if (!aboutSection) return;
-        
-        const revealText = document.querySelector('.about-text-reveal');
-        if (!revealText) return;
-        
-        const aboutText = document.querySelector('.about-text');
-        if (!aboutText) return;
-        
-        const targetText = aboutText.textContent.trim();
-        
-        // Split text into characters for fine-grained reveal & color control
-        revealText.innerHTML = '';
-        const characters = Array.from(targetText);
-        
-        const segmentElements = [];
-        
-        characters.forEach((char, index) => {
-            const wrapper = document.createElement('span');
-            wrapper.className = 'reveal-char-wrapper';
-            
-            const charSpan = document.createElement('span');
-            charSpan.className = 'reveal-char-actual';
-            charSpan.dataset.index = index.toString();
-            if (char === ' ') {
-                charSpan.classList.add('reveal-char-space');
-                charSpan.innerHTML = '&nbsp;';
-            } else {
-                charSpan.textContent = char;
-            }
-            wrapper.appendChild(charSpan);
-            revealText.appendChild(wrapper);
-            segmentElements.push(charSpan);
+        const pinWrap = document.querySelector('.about-pin-wrap');
+        const revealEl = document.querySelector('.about-text-reveal');
+        const sourceEl = document.querySelector('.about-text');
+        if (!aboutSection || !pinWrap || !revealEl || !sourceEl) return;
+
+        const text = sourceEl.textContent.trim();
+        revealEl.innerHTML = '';
+        const chars = Array.from(text);
+        const segments = [];
+
+        chars.forEach((char) => {
+            const wrap = document.createElement('span');
+            wrap.className = 'reveal-char-wrapper';
+            const span = document.createElement('span');
+            span.className = 'reveal-char-actual' + (char === ' ' ? ' reveal-char-space' : '');
+            span.textContent = char === ' ' ? '\u00A0' : char;
+            wrap.appendChild(span);
+            revealEl.appendChild(wrap);
+            segments.push(span);
         });
-        
-        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger);
 
-            const totalSegments = segmentElements.length;
-            const animationDistance = 1200;
+        if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+        gsap.registerPlugin(ScrollTrigger);
 
-            ScrollTrigger.create({
-                trigger: aboutSection,
-                start: 'top top',
-                end: `+=${animationDistance}`,
-                pin: true,
-                pinSpacing: true,
-                scrub: true,
-                onEnter: () => aboutSection.classList.add('visible'),
-                onEnterBack: () => aboutSection.classList.add('visible'),
-                onLeave: () => aboutSection.classList.remove('visible'),
-                onLeaveBack: () => aboutSection.classList.remove('visible'),
-                onUpdate: (self) => {
-                    if (!totalSegments) return;
-                    const progress = self.progress;
-                    segmentElements.forEach((segment, index) => {
-                        const start = index / totalSegments;
-                        const end = (index + 1) / totalSegments;
-                        const segmentProgress = gsap.utils.clamp(0, 1, (progress - start) / (end - start));
-                        segment.style.opacity = segmentProgress;
-                        const minWeight = 300;
-                        const maxWeight = 650;
-                        const computedWeight = Math.round(minWeight + (maxWeight - minWeight) * segmentProgress);
-                        segment.style.fontWeight = computedWeight;
-                    });
-                }
+        const total = segments.length;
+        const bufferStart = 0.2;
+        const bufferEnd = 0.75;
+
+        function updateChars(progress) {
+            segments.forEach((seg, i) => {
+                const start = i / total;
+                const end = (i + 1) / total;
+                const t = Math.max(0, Math.min(1, (progress - start) / (end - start || 1)));
+                seg.style.opacity = t;
+                seg.style.fontWeight = Math.round(300 + 350 * t);
             });
+        }
 
-            console.log('Text reveal animation initialized with', characters.length, 'characters');
-        } else {
-            console.error('GSAP or ScrollTrigger not loaded!');
+        // Pin the card wrapper so the card stays fixed on screen. Start when section top hits viewport top so the 100vh wrap centers the card at 50vh; end when section bottom hits viewport top.
+        const st = ScrollTrigger.create({
+            trigger: aboutSection,
+            start: 'top top',
+            end: 'bottom top',
+            pin: pinWrap,
+            pinSpacing: true,
+            scrub: true,
+            onUpdate(self) {
+                let p = self.progress;
+                if (p <= bufferStart) p = 0;
+                else if (p >= bufferEnd) p = 1;
+                else p = (p - bufferStart) / (bufferEnd - bufferStart);
+                updateChars(p);
+            }
+        });
+
+        if (st) {
+            let p = st.progress;
+            if (p <= bufferStart) p = 0;
+            else if (p >= bufferEnd) p = 1;
+            else p = (p - bufferStart) / (bufferEnd - bufferStart);
+            updateChars(p);
         }
     }
 
-    // Projects carousel with infinite auto-scroll and slowdown on hover
+    // Projects carousel: one card at a time with prev/next arrows
     function setupProjectsCarousel() {
         const carousel = document.querySelector('.projects-carousel');
         if (!carousel) return;
@@ -709,38 +699,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const slides = Array.from(track?.children || []);
         const prevBtn = carousel.querySelector('.projects-carousel__nav--prev');
         const nextBtn = carousel.querySelector('.projects-carousel__nav--next');
-        const counter = carousel.querySelector('.projects-carousel__counter');
+        const counterCurrent = carousel.querySelector('.projects-carousel__counter .current');
+        const counterTotal = carousel.querySelector('.projects-carousel__counter .total');
 
         if (!viewport || !track || slides.length === 0) return;
 
-        // Hide navigation buttons and counter for infinite scroll
-        if (prevBtn) prevBtn.style.display = 'none';
-        if (nextBtn) nextBtn.style.display = 'none';
-        if (counter) counter.style.display = 'none';
+        const totalSlides = slides.length;
+        let currentIndex = 0;
 
-        // Clone slides multiple times for seamless infinite scroll
-        // We need enough duplicates to ensure seamless looping
-        slides.forEach(slide => {
-            const clone1 = slide.cloneNode(true);
-            track.appendChild(clone1);
+        track.style.width = `${totalSlides * 100}%`;
+        slides.forEach((slide) => {
+            slide.style.flex = `0 0 ${100 / totalSlides}%`;
+            slide.style.width = `${100 / totalSlides}%`;
         });
-        
-        // Get all slides including originals and first clones
-        const allSlides = Array.from(track.children);
-        
-        // Duplicate once more (now we have 3 sets total)
-        allSlides.forEach(slide => {
-            const clone2 = slide.cloneNode(true);
-            track.appendChild(clone2);
-        });
-        
-        // Add one more set to ensure we have plenty of buffer
-        const allSlidesAgain = Array.from(track.children);
-        allSlidesAgain.forEach(slide => {
-            const clone3 = slide.cloneNode(true);
-            track.appendChild(clone3);
-        });
-
         const typedSlides = new WeakSet();
 
         const runTypingAnimation = (slide) => {
@@ -759,151 +730,31 @@ document.addEventListener('DOMContentLoaded', function() {
             typeWriter(titleElement, text, 45, 0);
         };
 
-        let scrollPosition = 0;
-        let scrollSpeed = 0.75; // Base scroll speed (pixels per frame) - increased for faster scrolling
-        let targetSpeed = scrollSpeed;
-        let animationFrameId = null;
-        let isPaused = false;
-        const totalSlides = slides.length;
-        let viewportHeight = 600; // Default viewport height
-        
-        // Calculate total height of one set of slides accurately
-        let singleSetHeight = 0;
-        const calculateHeight = () => {
-            // Get viewport height
-            const viewportRect = viewport.getBoundingClientRect();
-            viewportHeight = viewportRect.height || 600;
-            
-            // More accurate calculation: measure from first slide to first duplicate slide
-            // This ensures perfect alignment for seamless looping
-            const firstSlide = track.children[0];
-            const firstDuplicateSlide = track.children[totalSlides];
-            
-            if (firstSlide && firstDuplicateSlide) {
-                const firstRect = firstSlide.getBoundingClientRect();
-                const duplicateRect = firstDuplicateSlide.getBoundingClientRect();
-                singleSetHeight = duplicateRect.top - firstRect.top;
-            } else {
-                // Fallback: calculate by summing individual slides
-                singleSetHeight = 0;
-                for (let i = 0; i < totalSlides; i++) {
-                    const slide = track.children[i];
-                    if (slide) {
-                        const rect = slide.getBoundingClientRect();
-                        singleSetHeight += rect.height || 500;
-                        
-                        if (i < totalSlides - 1) {
-                            const trackStyle = window.getComputedStyle(track);
-                            const gap = parseFloat(trackStyle.gap) || 
-                                       parseFloat(trackStyle.rowGap) || 0;
-                            if (gap > 0) {
-                                singleSetHeight += gap;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // Ensure we have a valid height
-            if (singleSetHeight < 100) {
-                singleSetHeight = totalSlides * 520; // Fallback estimate
-            }
-        };
-        
-        // Initial calculation - use estimated height first
-        singleSetHeight = totalSlides * 520; // Estimate (500px + 20px gap)
-        
-        // Recalculate with actual heights after render - use requestAnimationFrame for better timing
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                calculateHeight();
-                // Ensure we have accurate height before starting
-                if (singleSetHeight < 100) {
-                    singleSetHeight = totalSlides * 520;
-                }
-            });
-        });
+        function goToSlide(index) {
+            currentIndex = Math.max(0, Math.min(totalSlides - 1, index));
+            const offsetPercent = (currentIndex * 100) / totalSlides;
+            track.style.transform = `translate3d(-${offsetPercent}%, 0, 0)`;
 
-        // Set track to no transition for smooth animation
-        track.style.transition = 'none';
+            if (counterCurrent) counterCurrent.textContent = String(currentIndex + 1);
+            if (counterTotal) counterTotal.textContent = String(totalSlides);
 
-        const animate = () => {
-            if (!isPaused) {
-                // Smoothly interpolate to target speed
-                scrollSpeed += (targetSpeed - scrollSpeed) * 0.15;
-                
-                scrollPosition += scrollSpeed;
-                
-                // Use modulo for seamless infinite loop
-                // This wraps the position seamlessly when it reaches singleSetHeight
-                if (singleSetHeight > 0) {
-                    scrollPosition = scrollPosition % singleSetHeight;
-                }
-            }
-            
-            track.style.transform = `translate3d(0, -${scrollPosition}px, 0)`;
-            
-            animationFrameId = requestAnimationFrame(animate);
-        };
+            if (prevBtn) prevBtn.disabled = currentIndex === 0;
+            if (nextBtn) nextBtn.disabled = currentIndex === totalSlides - 1;
 
-        // Pause on hover (like marquee example)
-        viewport.addEventListener('mouseenter', () => {
-            isPaused = true;
-        });
-
-        viewport.addEventListener('mouseleave', () => {
-            isPaused = false;
-            targetSpeed = 0.75; // Resume normal speed
-        });
-
-        // Also pause on touch
-        let touchStartTime = 0;
-        viewport.addEventListener('touchstart', () => {
-            isPaused = true;
-            touchStartTime = Date.now();
-        });
-
-        viewport.addEventListener('touchend', () => {
-            setTimeout(() => {
-                isPaused = false;
-                targetSpeed = 0.75;
-            }, 200);
-        });
-
-        // Run typing animations on visible slides
-        const checkVisibleSlides = () => {
-            const currentAllSlides = Array.from(track.children);
-            currentAllSlides.forEach((slide) => {
-                const slideRect = slide.getBoundingClientRect();
-                const viewportRect = viewport.getBoundingClientRect();
-                
-                // Check if slide is in viewport (vertical)
-                if (slideRect.top < viewportRect.bottom && slideRect.bottom > viewportRect.top) {
-                    runTypingAnimation(slide);
-                }
-            });
-        };
-        
-        // Recalculate slide heights on resize
-        const recalculateHeights = () => {
-            calculateHeight();
-        };
-
-        // Check visible slides periodically
-        setInterval(checkVisibleSlides, 500);
-
-        // Start animation
-        animate();
-
-        // Handle resize
-        window.addEventListener('resize', () => {
-            recalculateHeights();
-        });
-
-        // Run typing on initial visible slide
-        if (slides[0]) {
-            runTypingAnimation(slides[0]);
+            runTypingAnimation(slides[currentIndex]);
         }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => goToSlide(currentIndex - 1));
+            prevBtn.disabled = true;
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => goToSlide(currentIndex + 1));
+            nextBtn.disabled = totalSlides <= 1;
+        }
+
+        if (counterTotal) counterTotal.textContent = String(totalSlides);
+        goToSlide(0);
     }
 
     console.log('DOMContentLoaded - Starting animations...');
@@ -912,9 +763,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => ScrollTrigger.refresh(), 0);
     }
 
-    // Setup smooth cursor
-    setupSmoothCursor();
-    
     animateHero();
     
     console.log('Setting up about animation...');
@@ -1220,161 +1068,4 @@ function setupDockAnimation() {
     
     console.log('Dock setup complete with', freshIcons.length, 'icons');
 }
-
-// Smooth Cursor - Physics-based cursor animation
-function setupSmoothCursor() {
-    const cursorEl = document.getElementById('smooth-cursor');
-    if (!cursorEl) return;
-
-    document.body.classList.remove('cursor-hidden');
-    cursorEl.classList.remove('visible');
-    cursorEl.style.display = 'block';
-
-    if (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        cursorEl.style.display = 'none';
-        return;
-    }
-
-    document.body.classList.add('cursor-hidden');
-    cursorEl.style.display = 'block';
-
-    const state = {
-        targetX: window.innerWidth / 2,
-        targetY: window.innerHeight / 2,
-        currentX: window.innerWidth / 2,
-        currentY: window.innerHeight / 2,
-        velocityX: 0,
-        velocityY: 0,
-        rotation: 0,
-        rotationVelocity: 0,
-        scale: 1,
-        scaleVelocity: 0,
-        lastMoveTime: performance.now(),
-        visible: false,
-        restRotation: 0
-    };
-
-    const SPRING = {
-        position: { stiffness: 0.12, damping: 0.82 },
-        rotation: { stiffness: 0.08, damping: 0.8 },
-        scale: { stiffness: 0.18, damping: 0.7 }
-    };
-    const POSITION_SMOOTHING = 0.35;
-
-    let rafId = null;
-
-    const showCursor = () => {
-        if (!state.visible) {
-            cursorEl.classList.add('visible');
-            state.visible = true;
-        }
-    };
-
-    const hideCursor = () => {
-        state.visible = false;
-        cursorEl.classList.remove('visible');
-    };
-
-    const handleMouseMove = (event) => {
-        if (!state.visible) {
-            state.targetX = event.clientX;
-            state.targetY = event.clientY;
-            state.currentX = event.clientX;
-            state.currentY = event.clientY;
-        } else {
-            state.targetX += (event.clientX - state.targetX) * POSITION_SMOOTHING;
-            state.targetY += (event.clientY - state.targetY) * POSITION_SMOOTHING;
-        }
-        state.lastMoveTime = performance.now();
-        showCursor();
-        if (!rafId) rafId = requestAnimationFrame(update);
-    };
-
-    const handleMouseLeave = () => {
-        hideCursor();
-    };
-
-    const handleMouseEnter = (event) => {
-        state.targetX = event.clientX;
-        state.targetY = event.clientY;
-        state.currentX = event.clientX;
-        state.currentY = event.clientY;
-        state.velocityX = 0;
-        state.velocityY = 0;
-        showCursor();
-        if (!rafId) rafId = requestAnimationFrame(update);
-    };
-
-    const update = () => {
-        rafId = null;
-        const now = performance.now();
-        const dt = Math.min((now - (state.prevTime || now)) / 16.666, 1.5);
-        state.prevTime = now;
-
-        const dx = state.targetX - state.currentX;
-        const dy = state.targetY - state.currentY;
-
-        state.velocityX += dx * SPRING.position.stiffness * dt;
-        state.velocityY += dy * SPRING.position.stiffness * dt;
-
-        state.velocityX *= Math.pow(1 - SPRING.position.damping, dt);
-        state.velocityY *= Math.pow(1 - SPRING.position.damping, dt);
-
-        state.currentX += state.velocityX;
-        state.currentY += state.velocityY;
-        if (Math.abs(state.velocityX) < 0.00005) state.velocityX = 0;
-        if (Math.abs(state.velocityY) < 0.00005) state.velocityY = 0;
-
-        const speed = Math.hypot(state.velocityX, state.velocityY);
-        const rawAngle = (Math.atan2(state.velocityY, state.velocityX) * 180 / Math.PI) + 90;
-        if (speed > 0.05) {
-            const snapped = Math.round(rawAngle / 90) * 90;
-            state.restRotation = ((snapped % 360) + 360) % 360;
-        }
-        let targetRotation = state.restRotation;
-        let rotationDelta = targetRotation - state.rotation;
-        rotationDelta = ((rotationDelta + 180) % 360) - 180;
-        state.rotationVelocity += rotationDelta * SPRING.rotation.stiffness * dt;
-        state.rotationVelocity *= Math.pow(1 - SPRING.rotation.damping, dt);
-        state.rotation += state.rotationVelocity;
-        if (Math.abs(state.rotationVelocity) < 0.001 && speed < 0.02) {
-            state.rotationVelocity = 0;
-            state.rotation += (state.restRotation - state.rotation) * 0.3 * dt;
-        }
-        if (Math.abs(state.rotation - state.restRotation) < 0.01 && speed < 0.02) {
-            state.rotation = state.restRotation;
-        }
-
-        const timeSinceMove = now - state.lastMoveTime;
-        const targetScale = timeSinceMove < 160 ? 0.94 : 1;
-        const scaleDelta = targetScale - state.scale;
-        state.scaleVelocity += scaleDelta * SPRING.scale.stiffness * dt;
-        state.scaleVelocity *= Math.pow(1 - SPRING.scale.damping, dt);
-        state.scale += state.scaleVelocity;
-        if (Math.abs(state.scale - 1) < 0.001 && timeSinceMove >= 160) {
-            state.scale = 1;
-            state.scaleVelocity = 0;
-        }
-
-        cursorEl.style.transform = `translate3d(${state.currentX}px, ${state.currentY}px, 0) rotate(${state.rotation}deg) scale(${state.scale})`;
-
-        if (state.visible || Math.abs(state.scale - 1) > 0.0001 || Math.abs(state.rotationVelocity) > 0.0001 || Math.abs(state.velocityX) > 0.0001 || Math.abs(state.velocityY) > 0.0001) {
-            rafId = requestAnimationFrame(update);
-        }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('mouseenter', handleMouseEnter, { passive: true });
-    window.addEventListener('mouseleave', handleMouseLeave, { passive: true });
-    window.addEventListener('mousedown', () => {
-        state.lastMoveTime = performance.now();
-        state.scale = Math.max(state.scale * 0.94, 0.85);
-        if (!rafId) rafId = requestAnimationFrame(update);
-    }, { passive: true });
-    window.addEventListener('mouseup', () => {
-        state.lastMoveTime = performance.now();
-        if (!rafId) rafId = requestAnimationFrame(update);
-    }, { passive: true });
-}
-
 

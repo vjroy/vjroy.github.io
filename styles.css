@@ -99,52 +99,19 @@ body::-webkit-scrollbar {
     opacity: 0.8;
 }
 
-/* Smooth Cursor */
-.smooth-cursor {
-    position: fixed !important;
-    left: 0;
-    top: 0;
-    width: 50px;
-    height: 54px;
-    pointer-events: none !important;
-    z-index: 99998 !important;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.25s ease;
-    will-change: transform;
-    mix-blend-mode: difference;
-    display: block;
-    transform: translate3d(-50%, -50%, 0) scale(0.5);
+/* Main container: stacking context so particles stay behind content */
+.main-container {
+    isolation: isolate;
 }
 
-.smooth-cursor.visible {
-    opacity: 1;
-    visibility: visible;
-}
-
-.smooth-cursor svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-body.cursor-hidden {
-    cursor: none;
-}
-
-body.cursor-hidden input,
-body.cursor-hidden textarea,
-body.cursor-hidden select {
-    cursor: text !important;
-}
-
-/* Force all content to be above particles */
-body > *:not(.particles-background) {
+/* All page content in one layer above particles. No transform so position:sticky works in about section. */
+.main-content {
     position: relative;
     z-index: 1;
+    isolation: isolate;
 }
 
-/* Particles Background - Negative z-index approach */
+/* Particles Background - first child of main-container, forced behind via transform layer */
 .particles-background {
     position: fixed !important;
     top: 0 !important;
@@ -154,7 +121,8 @@ body > *:not(.particles-background) {
     width: 100vw !important;
     height: 100vh !important;
     pointer-events: none;
-    z-index: -1000 !important;
+    z-index: 0 !important;
+    transform: translateZ(-1px);
     opacity: 1 !important;
     visibility: visible !important;
     display: block !important;
@@ -169,7 +137,7 @@ body > *:not(.particles-background) {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: -1000;
+    z-index: 0;
     pointer-events: none;
 }
 
@@ -431,6 +399,7 @@ html {
     padding: 0;
     text-align: center;
     position: relative;
+    z-index: 1;
     overflow: visible;
 }
 
@@ -438,6 +407,8 @@ html {
     width: 100%;
     padding: 2rem 0 0 0;
     margin-bottom: 0px;
+    position: relative;
+    z-index: 1000;
 }
 
 .profile-img-wrapper {
@@ -596,18 +567,12 @@ html {
     justify-content: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%),
-        rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(60px) saturate(180%);
-    -webkit-backdrop-filter: blur(60px) saturate(180%);
+    background: #ffffff;
     border-radius: 32px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow: 
-        0 8px 32px 0 rgba(0, 0, 0, 0.15),
-        0 2px 8px 0 rgba(0, 0, 0, 0.1),
-        inset 0 2px 2px 0 rgba(255, 255, 255, 0.5),
-        inset 0 -2px 2px 0 rgba(255, 255, 255, 0.2);
+        0 8px 32px 0 rgba(0, 0, 0, 0.1),
+        0 2px 8px 0 rgba(0, 0, 0, 0.06);
     position: relative;
     z-index: 10001 !important;
     pointer-events: auto !important;
@@ -898,26 +863,19 @@ html {
 .scroll-indicator-wrapper {
     width: 3000px;
     position: relative;
+    z-index: 10000;
     left: 50%;
     margin-left: -1500px;
     overflow: hidden;
-    background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%),
-        rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(60px) saturate(180%);
-    -webkit-backdrop-filter: blur(60px) saturate(180%);
-    border-top: 1px solid rgba(255, 255, 255, 0.25);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    background: #ffffff;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     padding: 2.5rem 0;
     margin-top: 8rem;
     margin-bottom: 0px;
     box-sizing: border-box;
     display: flex;
-    box-shadow: 
-        0 4px 24px 0 rgba(0, 0, 0, 0.12),
-        0 1px 4px 0 rgba(0, 0, 0, 0.08),
-        inset 0 1px 1px 0 rgba(255, 255, 255, 0.5),
-        inset 0 -1px 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.08);
     border-radius: 20px;
 }
 
@@ -966,20 +924,32 @@ html {
     51%, 100% { opacity: 0; }
 }
 
-/* About Section */
+/* About Section – sticky text (GSAP ScrollTrigger pins section, JS reveals characters) */
 
 .about {
     position: relative;
-    padding: 15vh 0 20vh 0;
-    margin-top: 0;
-    min-height: calc(100vh + 1200px);
+    z-index: 1;
+    min-height: 200vh;
+    margin-top: 100vh;
+    padding: 0;
     isolation: isolate;
 }
 
 .about-text {
     position: absolute;
     left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
     pointer-events: none;
+}
+
+/* Wrapper that ScrollTrigger pins so the card stays on screen; card is centered inside it */
+.about-pin-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .about-text-reveal {
@@ -990,37 +960,13 @@ html {
     max-width: 850px;
     letter-spacing: -0.01em;
     margin: 0 auto;
-    padding: 0;
-    position: sticky;
-    top: 55vh;
-    transform: translateY(-50%);
-    pointer-events: none;
-    z-index: 5;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    display: block;
     padding: clamp(1.75rem, 6vw, 3rem);
     border-radius: clamp(24px, 6vw, 38px);
-    background: rgba(255, 255, 255, 0.88);
-    box-shadow:
-        0 30px 80px rgba(10, 10, 10, 0.22),
-        inset 0 1px 1px rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(28px) saturate(140%);
-    -webkit-backdrop-filter: blur(28px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    background: #ffffff;
+    box-shadow: 0 24px 64px rgba(10, 10, 10, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     text-wrap: pretty;
-}
-
-.about-text-reveal::before {
-    content: '';
-    position: absolute;
-    inset: clamp(-24px, -5vw, -40px);
-    border-radius: clamp(32px, 8vw, 52px);
-    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.35), transparent 60%);
-    filter: blur(45px);
-    opacity: 0.45;
-    pointer-events: none;
-    z-index: -2;
+    z-index: 5;
 }
 
 .about-text-reveal .reveal-char-wrapper {
@@ -1030,64 +976,25 @@ html {
 .about-text-reveal .reveal-char-actual {
     display: inline;
     opacity: 0;
-    color: inherit;
-    font-weight: 300;
-    transition: opacity 0.2s ease-out, font-weight 0.25s ease-out;
-    pointer-events: none;
+    transition: opacity 0.12s ease-out, font-weight 0.18s ease-out;
 }
 
 .about-text-reveal .reveal-char-actual.reveal-char-space {
     display: inline-block;
-    width: 0.5ch;
-}
-
-.about.visible .about-text-reveal {
-    opacity: 1;
-}
-
-.about-text-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -1;
+    width: 0.35em;
 }
 
 
 /* Projects Carousel */
 .projects {
     position: relative;
+    z-index: 1;
     width: 100%;
     padding: clamp(8rem, 12vw, 12rem) 0;
     background: transparent;
 }
 
-.projects-carousel__viewport::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 25%;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
-    pointer-events: none;
-    z-index: 10;
-    border-radius: clamp(16px, 3vw, 24px) clamp(16px, 3vw, 24px) 0 0;
-}
-
-.projects-carousel__viewport::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 25%;
-    background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
-    pointer-events: none;
-    z-index: 10;
-    border-radius: 0 0 clamp(16px, 3vw, 24px) clamp(16px, 3vw, 24px);
-}
+/* Gradient overlays removed for single-card arrow carousel */
 
 .projects-carousel {
     position: relative;
@@ -1099,7 +1006,6 @@ html {
 
 .projects-carousel__viewport {
     overflow: hidden;
-    border-radius: clamp(16px, 3vw, 24px);
     height: 600px;
     max-height: 80vh;
     position: relative;
@@ -1108,10 +1014,11 @@ html {
 
 .projects-carousel__track {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     transform: translate3d(0, 0, 0);
-    transition: none; /* No transition for smooth infinite scroll */
+    transition: transform 0.4s ease;
     will-change: transform;
+    height: 100%;
 }
 
 .projects-carousel__nav {
@@ -1124,13 +1031,13 @@ html {
     width: clamp(42px, 8vw, 62px);
     height: clamp(42px, 8vw, 62px);
     border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.04);
-    color: #f7f7f7;
-    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.9);
+    color: #0a0a0a;
+    font-size: clamp(1.5rem, 3vw, 2rem);
     cursor: pointer;
-    transition: background 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
-    z-index: 2;
+    transition: background 0.3s ease, transform 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+    z-index: 20;
 }
 
 .projects-carousel__nav-icon {
@@ -1139,13 +1046,13 @@ html {
 }
 
 .projects-carousel__nav:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.12);
+    background: #fff;
     transform: translateY(-50%) scale(1.05);
-    border-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(0, 0, 0, 0.35);
 }
 
 .projects-carousel__nav:disabled {
-    opacity: 0.25;
+    opacity: 0.35;
     cursor: not-allowed;
 }
 
@@ -1157,10 +1064,6 @@ html {
     right: clamp(-4rem, -6vw, -2.5rem);
 }
 
-.projects-carousel__viewport:hover {
-    cursor: grab;
-}
-
 .projects-carousel__progress {
     margin-top: clamp(1.75rem, 3vw, 2.5rem);
     display: flex;
@@ -1169,7 +1072,7 @@ html {
     font-size: clamp(0.85rem, 1vw, 1rem);
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: rgba(247, 247, 247, 0.55);
+    color: rgba(10, 10, 10, 0.6);
 }
 
 .projects-carousel__counter {
@@ -1179,33 +1082,31 @@ html {
 }
 
 .projects-carousel__counter .current {
-    color: #f7f7f7;
+    color: #0a0a0a;
 }
 
 .projects-carousel__counter .separator {
-    opacity: 0.35;
+    opacity: 0.5;
 }
 
 .projects-carousel__counter .total {
-    opacity: 0.55;
+    color: rgba(10, 10, 10, 0.7);
 }
 
 .projects-carousel .project-item {
     min-height: 500px;
-    min-width: 100%;
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
     padding: clamp(2.25rem, 5vw, 3.5rem);
     display: flex;
     flex-direction: column;
     gap: clamp(1.4rem, 2vw, 2.25rem);
     color: #0a0a0a;
-    background: rgba(255, 255, 255, 0.88);
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.15),
-        inset 0 1px 1px rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(28px) saturate(140%);
-    -webkit-backdrop-filter: blur(28px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.65);
-    border-radius: clamp(16px, 3vw, 24px);
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
     flex-shrink: 0;
     position: relative;
     overflow: hidden;
@@ -1292,9 +1193,6 @@ html {
     color: rgba(10, 10, 10, 0.9);
 }
 
-.projects-carousel .project-item:active {
-    transform: translate3d(0, 2px, 0) scale(0.99);
-}
 
 
 /* Responsive */
