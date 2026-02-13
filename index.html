@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Veejhay Roy — Computer Science &amp; Machine Learning student. Projects in LLM research, athletics, and mobile apps. Portfolio and running journey.">
     <title>Veejhay Roy</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/simple-parallax-js@5.6.2/dist/simpleParallax.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
-<body>
+<body class="is-loading">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <!-- Loading Screen -->
     <div class="loading-screen" id="loading-screen">
         <div class="loading-content">
@@ -24,7 +27,7 @@
     <div class="geometric-background"></div>
     <div class="main-container" style="opacity: 1 !important; visibility: visible !important;">
         <div class="particles-background" id="particles-background"></div>
-        <div class="main-content">
+        <main class="main-content" id="main-content">
         <!-- Hero Section -->
         <section class="hero visible" data-scroll style="opacity: 1 !important; visibility: visible !important;">
             <div class="hero-content">
@@ -41,7 +44,6 @@
                 <p class="hero-title">
                     <span class="typing-text" data-text="Computer Science & Machine Learning Student">Computer Science & Machine Learning Student</span>
                 </p>
-                <p class="hero-email">usroyvj@gmail.com</p>
                 
                 <!-- Dock -->
                 <div class="dock-container">
@@ -57,13 +59,6 @@
                             <a href="https://github.com/vjroy" target="_blank" rel="noopener" aria-label="GitHub">
                                 <svg width="16" height="16" viewBox="0 0 438.549 438.549" fill="currentColor">
                                     <path d="M409.132 114.573c-19.608-33.596-46.205-60.194-79.798-79.8-33.598-19.607-70.277-29.408-110.063-29.408-39.781 0-76.472 9.804-110.063 29.408-33.596 19.605-60.192 46.204-79.8 79.8C9.803 148.168 0 184.854 0 224.63c0 47.78 13.94 90.745 41.827 128.906 27.884 38.164 63.906 64.572 108.063 79.227 5.14.954 8.945.283 11.419-1.996 2.475-2.282 3.711-5.14 3.711-8.562 0-.571-.049-5.708-.144-15.417a2549.81 2549.81 0 01-.144-25.406l-6.567 1.136c-4.187.767-9.469 1.092-15.846 1-6.374-.089-12.991-.757-19.842-1.999-6.854-1.231-13.229-4.086-19.13-8.559-5.898-4.473-10.085-10.328-12.56-17.556l-2.855-6.57c-1.903-4.374-4.899-9.233-8.992-14.559-4.093-5.331-8.232-8.945-12.419-10.848l-1.999-1.431c-1.332-.951-2.568-2.098-3.711-3.429-1.142-1.331-1.997-2.663-2.568-3.997-.572-1.335-.098-2.43 1.427-3.289 1.525-.859 4.281-1.276 8.28-1.276l5.708.853c3.807.763 8.516 3.042 14.133 6.851 5.614 3.806 10.229 8.754 13.846 14.842 4.38 7.806 9.657 13.754 15.846 17.847 6.184 4.093 12.419 6.136 18.699 6.136 6.28 0 11.704-.476 16.274-1.423 4.565-.952 8.848-2.383 12.847-4.285 1.713-12.758 6.377-22.559 13.988-29.41-10.848-1.14-20.601-2.857-29.264-5.14-8.658-2.286-17.605-5.996-26.835-11.14-9.235-5.137-16.896-11.516-22.985-19.126-6.09-7.614-11.088-17.61-14.987-29.979-3.901-12.374-5.852-26.648-5.852-42.826 0-23.035 7.52-42.637 22.557-58.817-7.044-17.318-6.379-36.732 1.997-58.24 5.52-1.715 13.706-.428 24.554 3.853 10.85 4.283 18.794 7.952 23.84 10.994 5.046 3.041 9.089 5.618 12.135 7.708 17.705-4.947 35.976-7.421 54.818-7.421s37.117 2.474 54.823 7.421l10.849-6.849c7.419-4.57 16.18-8.758 26.262-12.565 10.088-3.805 17.802-4.853 23.134-3.138 8.562 21.509 9.325 40.922 2.279 58.24 15.036 16.18 22.559 35.787 22.559 58.817 0 16.178-1.958 30.497-5.853 42.966-3.9 12.471-8.941 22.457-15.125 29.979-6.191 7.521-13.901 13.85-23.131 18.986-9.232 5.14-18.182 8.85-26.84 11.136-8.662 2.286-18.415 4.004-29.263 5.146 9.894 8.562 14.842 22.077 14.842 40.539v60.237c0 3.422 1.19 6.279 3.572 8.562 2.379 2.279 6.136 2.95 11.276 1.995 44.163-14.653 80.185-41.062 108.068-79.226 27.88-38.161 41.825-81.126 41.825-128.906-.01-39.771-9.818-76.454-29.414-110.049z"></path>
-                                </svg>
-                            </a>
-                        </div>
-                        <div class="dock-icon" data-label="Strava">
-                            <a href="https://www.strava.com/athletes/104292885" target="_blank" rel="noopener" aria-label="Strava">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M15.387 17.944l-2.089-4.116-3.846 10.166L2.047 24v-.093l10.036-17.305L8.605 6.76H6.252l3.414 6.826-5.03 10.249-3.4-6.826H.717l8.744 17.697-2.602 5.579h13.714l4.262-5.579-3.747-7.255zm4.202 1.885h-1.32l-2.904-5.676-.228.457-3.578 7.284h1.32l2.776-5.704 3.003 5.676h1.747z"/>
                                 </svg>
                             </a>
                         </div>
@@ -88,24 +83,16 @@
                     </div>
                 </div>
                 
-                <!-- Scroll Indicator -->
-                <div class="scroll-indicator-wrapper">
-                <div class="scroll-text">
-                SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN
-            </div>
-            <div class="scroll-text">
-                    SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN
-                </div>
-                <div class="scroll-text">
-                    SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN • SCROLL DOWN
-                </div>
+                <div class="scroll-indicator" aria-hidden="true">
+                <span class="scroll-indicator__text">Scroll down</span>
+                    <span class="scroll-indicator__chevron">↓</span>
                 </div>
             </div>
         </section>
 
-        <!-- About Section – card is pinned by ScrollTrigger so it stays on screen; characters reveal as you scroll -->
+        <!-- About Section – sticky text pinned by ScrollTrigger, character reveal on scroll -->
         <section class="about" data-scroll>
-            <p class="about-text">Hey! I'm Veejhay, a student who loves computer science, machine learning, and running. Scroll down to check out my projects and running journey.</p>
+            <p class="about-text">I'm Veejhay Roy, a computer science and machine learning student focused on research and building practical applications. Below are selected projects and my background in competitive running.</p>
             <div class="about-pin-wrap">
                 <p class="about-text-reveal"></p>
             </div>
@@ -115,35 +102,29 @@
         <section class="projects" data-scroll>
             <div class="projects-carousel" tabindex="0" aria-label="Project highlights carousel">
                 <button type="button" class="projects-carousel__nav projects-carousel__nav--prev" aria-label="Previous project">
-                    <span class="projects-carousel__nav-icon" aria-hidden="true">‹</span>
+                    <span class="projects-carousel__nav-icon" aria-hidden="true">←</span>
                 </button>
                 <div class="projects-carousel__viewport">
                     <div class="projects-carousel__track">
                         <article class="project-item">
                             <span class="project-tag">Research</span>
-                            <h2 class="project-title">
-                                <span class="typing-text" data-text="LLM Research">LLM Research</span>
-                            </h2>
+                            <h2 class="project-title">LLM Research</h2>
                             <p class="project-desc">I made a research paper with MIT graduate Roger Jin. We created a benchmark, RouteEval, to help test over 10,000 evaluations of running routes on 13 different LLMs. Our results showed that GPT-5 was the most accurate by a significant margin with 65% accuracy, followed by Grok-4 (55%), and Gemini-2.5-pro (52%). We submitted the research paper to ACL ARR 2025 October.</p>
                             <div class="project-links">
                                 <a href="LLM_Research (1).pdf" target="_blank" rel="noopener" class="link">View Research Paper</a>
                             </div>
                         </article>
                         <article class="project-item">
-                            <span class="project-tag">Athletics</span>
-                            <h2 class="project-title">
-                                <span class="typing-text" data-text="Track & Cross Country">Track & Cross Country</span>
-                            </h2>
-                            <p class="project-desc">Running has shaped nearly every part of who I am, teaching me discipline, patience, and consistency. I've raced distances from the 400m to the 5K, earning all-county honors in cross country and track, and I'm continuously pushing to improve my personal bests and have fun :)</p>
+                            <span class="project-tag">Web App</span>
+                            <h2 class="project-title">Routecraft</h2>
+                            <p class="project-desc">Routecraft.io hosts a blog about the RouteEval research paper and provides an interactive tool where you can enter a prompt and generate a running route. The app supports multiple models so you can compare outputs and choose the one that fits your run.</p>
                             <div class="project-links">
-                                <a href="https://nj.milesplit.com/athletes/12388736-veejhay-roy" target="_blank" rel="noopener" class="link">MileSplit Profile</a>
+                                <a href="https://routecraft.io" target="_blank" rel="noopener" class="link">Visit routecraft.io</a>
                             </div>
                         </article>
                         <article class="project-item">
                             <span class="project-tag">Machine Learning</span>
-                            <h2 class="project-title">
-                                <span class="typing-text" data-text="Credit Card Fraud Detection">Credit Card Fraud Detection</span>
-                            </h2>
+                            <h2 class="project-title">Credit Card Fraud Detection</h2>
                             <p class="project-desc">In the summer of my senior year, I went to a summer program at Columbia University where I studied data science and machine learning. We covered a variety of topics including modeling, artificial intelligence, and linear algebra. For my final project, I partnered up with a friend to create a model that detects credit card fraud. We used a voter classifier combining Logistic Regression and a Random Forest model to make a successful model. We also used data-balancing techniques like SMOTE to train the model for better performance.</p>
                             <div class="project-links">
                                 <a href="https://github.com/yazganschool/finalproject" target="_blank" rel="noopener" class="link">GitHub Repository</a>
@@ -152,9 +133,7 @@
                         </article>
                         <article class="project-item">
                             <span class="project-tag">Mobile App</span>
-                            <h2 class="project-title">
-                                <span class="typing-text" data-text="SplitDecision">SplitDecision</span>
-                            </h2>
+                            <h2 class="project-title">SplitDecision</h2>
                             <p class="project-desc">My friend and I created an app, SplitDecision, to help our coaches track workout splits for the cross country and track teams. It was a really fun project that enhanced my understanding in Swift, and it's been used by over 100+ athletes at my school.</p>
                             <div class="project-links">
                                 <a href="https://apps.apple.com/us/app/split-decision/id6745452671" target="_blank" rel="noopener" class="link">View on App Store</a>
@@ -162,29 +141,35 @@
                         </article>
                         <article class="project-item">
                             <span class="project-tag">Education</span>
-                            <h2 class="project-title">
-                                <span class="typing-text" data-text="HarvardX Data Science">HarvardX Data Science</span>
-                            </h2>
+                            <h2 class="project-title">HarvardX Data Science</h2>
                             <p class="project-desc">Learned about the math behind machine learning using multivariable calculus, statistics, probability, and linear algebra. Engaged in a myriad of projects using python and tools such as scikit-learn, pandas, numpy, and tensorflow. Received a certificate in the class due to my passing grade.</p>
                             <div class="project-links">
                                 <a href="HarvardX.pdf" target="_blank" rel="noopener" class="link">View Certificate</a>
                             </div>
                         </article>
+                        <article class="project-item">
+                            <span class="project-tag">Athletics</span>
+                            <h2 class="project-title">Track &amp; Cross Country</h2>
+                            <p class="project-desc">Running has shaped nearly every part of who I am, teaching me discipline, patience, and consistency. I've raced distances from the 400m to the 5K, earning all-county honors in cross country and track, and I'm continuously pushing to improve my personal bests and have fun :)</p>
+                            <div class="project-links">
+                                <a href="https://nj.milesplit.com/athletes/12388736-veejhay-roy" target="_blank" rel="noopener" class="link">MileSplit Profile</a>
+                            </div>
+                        </article>
                     </div>
                 </div>
                 <button type="button" class="projects-carousel__nav projects-carousel__nav--next" aria-label="Next project">
-                    <span class="projects-carousel__nav-icon" aria-hidden="true">›</span>
+                    <span class="projects-carousel__nav-icon" aria-hidden="true">→</span>
                 </button>
                 <div class="projects-carousel__progress">
                     <div class="projects-carousel__counter">
                         <span class="current">1</span>
                         <span class="separator">/</span>
-                        <span class="total">5</span>
+                        <span class="total">6</span>
                     </div>
                 </div>
             </div>
         </section>
-        </div>
+        </main>
     </div>
 
     <!-- SVG Filter Definition for Glass Distortion -->

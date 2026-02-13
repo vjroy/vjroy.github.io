@@ -103,6 +103,8 @@ function setupLoadingScreen() {
     const numberTicker = document.getElementById('number-ticker');
     
     if (!loadingScreen || !numberTicker) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
     document.body.style.overflow = 'hidden';
 
@@ -126,82 +128,60 @@ function setupLoadingScreen() {
         mainContainer.style.visibility = 'visible';
     }
     
-    // Create number ticker instance
+    // Loading: full ticker then blur fade out; hero content blurs in
     const ticker = new NumberTicker(numberTicker, {
         value: 100,
-        startValue: 0,
-        duration: 2000,
+        startValue: prefersReducedMotion ? 100 : 0,
+        duration: prefersReducedMotion ? 0 : 1650,
         delay: 0,
         decimalPlaces: 0,
         onComplete: () => {
-            // Start blur fade out animation
+            const contentDuration = prefersReducedMotion ? 0 : 0.6;
+            const contentBlur = prefersReducedMotion ? '0px' : '10px';
+            const contentOffset = prefersReducedMotion ? 0 : 20;
             setTimeout(() => {
                 loadingScreen.classList.add('fade-out');
-                
-                // Start blur fade in content 0.1s after loading screen starts fading
                 setTimeout(() => {
-                    // Blur fade in hero content
                     const heroContent = document.querySelector('.hero-content');
                     if (heroContent) {
                         blurFadeIn(heroContent, {
-                            duration: 0.6,
-                            delay: 0.1,
-                            offset: 20,
+                            duration: contentDuration,
+                            delay: prefersReducedMotion ? 0 : 0.1,
+                            offset: contentOffset,
                             direction: 'up',
-                            blur: '10px'
+                            blur: contentBlur
                         });
                     }
-                    
-                    // Blur fade in profile image
                     const profileWrapper = document.querySelector('.profile-img-wrapper');
                     if (profileWrapper) {
                         blurFadeIn(profileWrapper, {
-                            duration: 0.6,
-                            delay: 0.2,
-                            offset: 20,
+                            duration: contentDuration,
+                            delay: prefersReducedMotion ? 0 : 0.2,
+                            offset: contentOffset,
                             direction: 'up',
-                            blur: '10px'
+                            blur: contentBlur
                         });
                     }
-                    
-                    // Blur fade in name
                     const heroName = document.querySelector('.hero-name');
                     if (heroName) {
                         blurFadeIn(heroName, {
-                            duration: 0.5,
-                            delay: 0.3,
-                            offset: 15,
+                            duration: prefersReducedMotion ? 0 : 0.5,
+                            delay: prefersReducedMotion ? 0 : 0.3,
+                            offset: prefersReducedMotion ? 0 : 15,
                             direction: 'up',
-                            blur: '8px'
+                            blur: contentBlur
                         });
                     }
-                    
-                    // Blur fade in title
                     const heroTitle = document.querySelector('.hero-title');
                     if (heroTitle) {
                         blurFadeIn(heroTitle, {
-                            duration: 0.5,
-                            delay: 0.4,
-                            offset: 15,
+                            duration: prefersReducedMotion ? 0 : 0.5,
+                            delay: prefersReducedMotion ? 0 : 0.4,
+                            offset: prefersReducedMotion ? 0 : 15,
                             direction: 'up',
-                            blur: '8px'
+                            blur: contentBlur
                         });
                     }
-                    
-                    // Blur fade in email
-                    const heroEmail = document.querySelector('.hero-email');
-                    if (heroEmail) {
-                        blurFadeIn(heroEmail, {
-                            duration: 0.5,
-                            delay: 0.5,
-                            offset: 15,
-                            direction: 'up',
-                            blur: '8px'
-                        });
-                    }
-                    
-                    // Make dock visible and interactive AFTER loading screen is completely gone
-                    // Wait a bit to ensure nothing is blocking it
                     setTimeout(() => {
                         const dock = document.querySelector('.dock');
                         const dockContainer = document.querySelector('.dock-container');
@@ -249,13 +229,9 @@ function setupLoadingScreen() {
                             });
                             
                             // Initialize dock animation after a small delay
-                            setTimeout(() => {
-                                setupDockAnimation();
-                            }, 100);
+                            setTimeout(() => setupDockAnimation(), 100);
                         }
-                    }, 500); // Wait 500ms after loading screen is removed
-                    
-                    // Blur fade in spinning text
+                    }, 500);
                     const spinningText = document.querySelector('.spinning-text');
                     if (spinningText) {
                         blurFadeIn(spinningText, {
@@ -267,16 +243,14 @@ function setupLoadingScreen() {
                         });
                     }
                 }, 100);
-                
-                // Remove loading screen after animation completes
                 setTimeout(() => {
                     loadingScreen.style.display = 'none';
                     loadingScreen.style.visibility = 'hidden';
                     loadingScreen.style.opacity = '0';
                     loadingScreen.style.pointerEvents = 'none';
                     loadingScreen.style.zIndex = '-1';
+                    document.body.classList.remove('is-loading');
                     document.body.style.overflow = '';
-
                     document.dispatchEvent(new CustomEvent('loading-screen-complete'));
                 }, 400);
             }, 300);
@@ -612,13 +586,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 typeWriter(titleElement, titleElement.getAttribute('data-text') || 'Computer Science & Machine Learning Student', 50, 2500);
             }
 
-            const emailElement = document.querySelector('.hero-email');
-            if (emailElement) {
-                setTimeout(() => {
-                    emailElement.style.opacity = '1';
-                    emailElement.style.transform = 'translateY(0)';
-                }, 4000);
-            }
         }, 500);
     }
 
@@ -658,12 +625,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const start = i / total;
                 const end = (i + 1) / total;
                 const t = Math.max(0, Math.min(1, (progress - start) / (end - start || 1)));
-                seg.style.opacity = t;
-                seg.style.fontWeight = Math.round(300 + 350 * t);
+                seg.style.opacity = 0.28 + 0.72 * t;
+                seg.style.fontWeight = Math.round(300 + 400 * t);
             });
         }
 
-        // Pin the card wrapper so the card stays fixed on screen. Start when section top hits viewport top so the 100vh wrap centers the card at 50vh; end when section bottom hits viewport top.
         const st = ScrollTrigger.create({
             trigger: aboutSection,
             start: 'top top',
@@ -712,24 +678,6 @@ document.addEventListener('DOMContentLoaded', function() {
             slide.style.flex = `0 0 ${100 / totalSlides}%`;
             slide.style.width = `${100 / totalSlides}%`;
         });
-        const typedSlides = new WeakSet();
-
-        const runTypingAnimation = (slide) => {
-            if (!slide || typedSlides.has(slide)) return;
-            const titleElement = slide.querySelector('.project-title .typing-text');
-            if (!titleElement) {
-                typedSlides.add(slide);
-                return;
-            }
-            const text = titleElement.getAttribute('data-text') || titleElement.textContent;
-            if (!text) {
-                typedSlides.add(slide);
-                return;
-            }
-            typedSlides.add(slide);
-            typeWriter(titleElement, text, 45, 0);
-        };
-
         function goToSlide(index) {
             currentIndex = Math.max(0, Math.min(totalSlides - 1, index));
             const offsetPercent = (currentIndex * 100) / totalSlides;
@@ -740,8 +688,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (prevBtn) prevBtn.disabled = currentIndex === 0;
             if (nextBtn) nextBtn.disabled = currentIndex === totalSlides - 1;
-
-            runTypingAnimation(slides[currentIndex]);
         }
 
         if (prevBtn) {
