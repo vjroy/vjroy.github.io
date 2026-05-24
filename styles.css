@@ -40,21 +40,11 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     padding-bottom: 16px;
-    scrollbar-width: thin;
-    scrollbar-color: #30363d transparent;
+    scrollbar-width: none;
 }
 
 .output::-webkit-scrollbar {
-    width: 4px;
-}
-
-.output::-webkit-scrollbar-thumb {
-    background: #30363d;
-    border-radius: 2px;
-}
-
-.output::-webkit-scrollbar-track {
-    background: transparent;
+    display: none;
 }
 
 /* ── Lines ──────────────────────────────────────────────── */
