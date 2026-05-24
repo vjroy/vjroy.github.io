@@ -1,3 +1,15 @@
+/* ── Theme tokens ────────────────────────────────────────── */
+:root {
+    --bg:     #0d1117;
+    --text:   #e6edf3;
+    --green:  #3fb950;
+    --blue:   #58a6ff;
+    --orange: #e3b341;
+    --dim:    #6e7681;
+    --red:    #f85149;
+    --border: #21262d;
+}
+
 /* ── Reset ──────────────────────────────────────────────── */
 *, *::before, *::after {
     margin: 0;
@@ -8,19 +20,20 @@
 /* ── Base ───────────────────────────────────────────────── */
 html {
     height: 100%;
-    background: #0d1117;
+    background: var(--bg);
 }
 
 body {
     height: 100%;
-    background: #0d1117;
-    color: #e6edf3;
+    background: var(--bg);
+    color: var(--text);
     font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', 'Courier New', monospace;
     font-size: 14px;
     line-height: 1.7;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background 0.25s ease, color 0.25s ease;
 }
 
 /* ── Terminal container ─────────────────────────────────── */
@@ -41,11 +54,10 @@ body {
     overflow-x: hidden;
     padding-bottom: 16px;
     scrollbar-width: none;
+    scroll-behavior: smooth;
 }
 
-.output::-webkit-scrollbar {
-    display: none;
-}
+.output::-webkit-scrollbar { display: none; }
 
 /* ── Lines ──────────────────────────────────────────────── */
 .line {
@@ -56,14 +68,44 @@ body {
     min-height: 1em;
 }
 
+/* ── Mobile quick-commands ──────────────────────────────── */
+.mobile-cmds {
+    display: none;
+    gap: 6px;
+    padding: 10px 0 6px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+}
+
+.mobile-cmds::-webkit-scrollbar { display: none; }
+
+.mobile-cmd {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--blue);
+    font-family: inherit;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.mobile-cmd:active {
+    background: var(--border);
+}
+
 /* ── Input row ──────────────────────────────────────────── */
 .input-row {
     display: flex;
     align-items: center;
     flex-shrink: 0;
     padding-top: 10px;
-    border-top: 1px solid #21262d;
-    gap: 0;
+    border-top: 1px solid var(--border);
+    transition: border-color 0.25s ease;
 }
 
 .ps1 {
@@ -73,35 +115,62 @@ body {
     margin-right: 8px;
 }
 
-.ps1-user   { color: #3fb950; font-weight: 600; }
-.ps1-at     { color: #3fb950; }
-.ps1-host   { color: #3fb950; font-weight: 600; }
-.ps1-colon  { color: #6e7681; }
-.ps1-dir    { color: #58a6ff; font-weight: 600; }
-.ps1-dollar { color: #6e7681; margin-left: 3px; }
+.ps1-user   { color: var(--green); font-weight: 600; }
+.ps1-at     { color: var(--green); }
+.ps1-host   { color: var(--green); font-weight: 600; }
+.ps1-colon  { color: var(--dim); }
+.ps1-dir    { color: var(--blue); font-weight: 600; }
+.ps1-dollar { color: var(--dim); margin-left: 3px; }
+
+/* ── Input wrap + block cursor ──────────────────────────── */
+.input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+}
 
 .cmd-input {
     flex: 1;
     background: transparent;
     border: none;
     outline: none;
-    color: #e6edf3;
+    color: var(--text);
     font-family: inherit;
     font-size: inherit;
     line-height: inherit;
-    caret-color: #3fb950;
+    caret-color: var(--green);
     min-width: 0;
+    transition: color 0.25s ease, caret-color 0.25s ease;
+}
+
+/* Blinking block cursor — visible when input is empty & focused */
+.cursor {
+    color: var(--green);
+    animation: blink 1s step-end infinite;
+    user-select: none;
+    pointer-events: none;
+    flex-shrink: 0;
+    transition: color 0.25s ease;
+}
+
+.cursor.hidden { display: none; }
+
+@keyframes blink {
+    0%, 49%  { opacity: 1; }
+    50%, 100% { opacity: 0; }
 }
 
 /* ── Color utilities ────────────────────────────────────── */
-.c-green  { color: #3fb950; }
-.c-blue   { color: #58a6ff; }
-.c-orange { color: #e3b341; }
-.c-dim    { color: #6e7681; }
-.c-red    { color: #f85149; }
-.c-white  { color: #e6edf3; }
+.c-green  { color: var(--green); }
+.c-blue   { color: var(--blue); }
+.c-orange { color: var(--orange); }
+.c-dim    { color: var(--dim); }
+.c-red    { color: var(--red); }
+.c-white  { color: var(--text); }
 
-/* ── Subtle scanline texture ────────────────────────────── */
+/* ── Subtle scanlines ───────────────────────────────────── */
 body::after {
     content: '';
     position: fixed;
@@ -122,8 +191,8 @@ body::after {
     position: absolute;
     top: -100px;
     left: 1rem;
-    background: #21262d;
-    color: #e6edf3;
+    background: var(--border);
+    color: var(--text);
     padding: 0.5rem 1rem;
     border-radius: 4px;
     text-decoration: none;
@@ -134,18 +203,15 @@ body::after {
 .skip-link:focus { top: 1rem; }
 
 /* ── Responsive ─────────────────────────────────────────── */
-@media (max-width: 640px) {
-    .terminal {
-        padding: 20px 20px 14px;
-    }
+@media (max-width: 768px) {
+    .mobile-cmds { display: flex; }
+}
 
-    body {
-        font-size: 13px;
-    }
+@media (max-width: 640px) {
+    .terminal { padding: 20px 20px 14px; }
+    body { font-size: 13px; }
 }
 
 @media (max-width: 380px) {
-    body {
-        font-size: 12px;
-    }
+    body { font-size: 12px; }
 }

@@ -1,7 +1,27 @@
 (() => {
-    // ── DOM ─────────────────────────────────────────────────
-    const outputEl  = document.getElementById('output');
-    const inputEl   = document.getElementById('cmd-input');
+    // ── Theme system ──────────────────────────────────────────
+    const THEMES = {
+        default: { '--bg': '#0d1117', '--text': '#e6edf3', '--green': '#3fb950', '--blue': '#58a6ff', '--orange': '#e3b341', '--dim': '#6e7681', '--red': '#f85149', '--border': '#21262d' },
+        amber:   { '--bg': '#0c0800', '--text': '#ffb700', '--green': '#ffb700', '--blue': '#ff8c00', '--orange': '#ff6600', '--dim': '#7a5500', '--red': '#ff3300', '--border': '#332200' },
+        green:   { '--bg': '#001100', '--text': '#00ff41', '--green': '#00ff41', '--blue': '#39ff14', '--orange': '#aaff00', '--dim': '#005500', '--red': '#ff0000', '--border': '#003300' },
+        light:   { '--bg': '#fafbfc', '--text': '#24292f', '--green': '#116329', '--blue': '#0969da', '--orange': '#953800', '--dim': '#6e7781', '--red': '#cf222e', '--border': '#d0d7de' },
+    };
+
+    function applyTheme(name) {
+        const theme = THEMES[name];
+        if (!theme) return false;
+        Object.entries(theme).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+        localStorage.setItem('vjroy_theme', name);
+        return true;
+    }
+
+    // Restore saved theme before first paint
+    applyTheme(localStorage.getItem('vjroy_theme') || 'default');
+
+    // ── DOM ──────────────────────────────────────────────────
+    const outputEl = document.getElementById('output');
+    const inputEl  = document.getElementById('cmd-input');
+    const cursorEl = document.getElementById('cursor');
 
     // ── History ──────────────────────────────────────────────
     const cmdHistory = [];
@@ -9,10 +29,7 @@
 
     // ── Output helpers ───────────────────────────────────────
     function esc(s) {
-        return String(s)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     function line(html = '') {
@@ -20,30 +37,46 @@
         d.className = 'line';
         d.innerHTML = html;
         outputEl.appendChild(d);
-        scrollBottom();
-    }
-
-    function blank() { line(''); }
-
-    function lines(arr) { arr.forEach(line); }
-
-    function scrollBottom() {
         outputEl.scrollTop = outputEl.scrollHeight;
     }
 
+    function blank() { line(''); }
+    function lines(arr) { arr.forEach(line); }
+
     function echoCmd(cmd) {
-        line(
-            `<span class="c-dim"><span class="c-green">veejhay@portfolio</span>:<span class="c-blue">~</span>$</span> ${esc(cmd)}`
+        line(`<span class="c-dim"><span class="c-green">veejhay@portfolio</span>:<span class="c-blue">~</span>$</span> ${esc(cmd)}`);
+    }
+
+    function bar(pct, w = 28) {
+        const f = Math.round(pct / 100 * w);
+        return `<span class="c-green">${'▓'.repeat(f)}</span><span class="c-dim">${'░'.repeat(w - f)}</span>`;
+    }
+
+    // ── Block cursor ─────────────────────────────────────────
+    function updateCursor() {
+        const show = inputEl.value.length === 0 && document.activeElement === inputEl;
+        cursorEl.classList.toggle('hidden', !show);
+    }
+
+    inputEl.addEventListener('input', updateCursor);
+    inputEl.addEventListener('focus', updateCursor);
+    inputEl.addEventListener('blur',  updateCursor);
+
+    // ── Levenshtein (typo suggestions) ───────────────────────
+    function lev(a, b) {
+        const m = a.length, n = b.length;
+        const dp = Array.from({ length: m + 1 }, (_, i) =>
+            Array.from({ length: n + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0)
         );
+        for (let i = 1; i <= m; i++)
+            for (let j = 1; j <= n; j++)
+                dp[i][j] = a[i-1] === b[j-1]
+                    ? dp[i-1][j-1]
+                    : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+        return dp[m][n];
     }
 
-    // ASCII bar: pct out of 100, barWidth chars wide
-    function bar(pct, barWidth = 28) {
-        const filled = Math.round(pct / 100 * barWidth);
-        return `<span class="c-green">${'▓'.repeat(filled)}</span><span class="c-dim">${'░'.repeat(barWidth - filled)}</span>`;
-    }
-
-    // ── Link registry ────────────────────────────────────────
+    // ── Link registry ─────────────────────────────────────────
     const LINKS = {
         github:        'https://github.com/vjroy',
         discord:       'https://discord.com/users/688513027124887601',
@@ -58,28 +91,29 @@
         fraud:         'https://github.com/yazganschool/finalproject',
     };
 
-    // ── Commands ─────────────────────────────────────────────
+    // ── Commands ──────────────────────────────────────────────
 
     function cmdHelp() {
         blank();
         line(`<span class="c-orange">available commands</span>`);
         blank();
-        const cmds = [
-            ['about',           'who I am'],
-            ['ls',              'list projects'],
-            ['cat &lt;project&gt;', 'view project details'],
-            ['skills',          'languages &amp; tools'],
-            ['contact',         'get in touch'],
-            ['resume',          'open resume PDF'],
-            ['open &lt;link&gt;',   'github · discord · routecraft · milesplit · ...'],
-            ['clear',           'clear the terminal'],
-            ['date',            'current date &amp; time'],
-        ];
-        cmds.forEach(([cmd, desc]) => {
-            line(`  <span class="c-blue">${cmd.padEnd(22)}</span><span class="c-dim">${desc}</span>`);
-        });
+        [
+            ['about',              'who I am'],
+            ['ls',                 'list projects'],
+            ['cat &lt;project&gt;','view project details'],
+            ['skills',             'languages &amp; tools'],
+            ['contact',            'get in touch'],
+            ['resume',             'open resume PDF'],
+            ['open &lt;link&gt;',  'github · discord · routecraft · milesplit · ...'],
+            ['theme &lt;name&gt;', 'default · amber · green · light'],
+            ['ping &lt;host&gt;',  'send packets'],
+            ['clear',              'clear terminal'],
+            ['date',               'current date &amp; time'],
+        ].forEach(([cmd, desc]) =>
+            line(`  <span class="c-blue">${cmd.padEnd(22)}</span><span class="c-dim">${desc}</span>`)
+        );
         blank();
-        line(`  <span class="c-dim">↑ / ↓  command history  ·  tab  autocomplete  ·  ctrl+l  clear</span>`);
+        line(`  <span class="c-dim">↑ / ↓  history  ·  tab  autocomplete  ·  ctrl+l  clear</span>`);
         blank();
     }
 
@@ -106,22 +140,19 @@
     function cmdLs() {
         blank();
         line(`  <span class="c-dim">projects/</span>`);
-        const items = [
+        [
             ['routeeval',       'LLM route benchmark · research'],
             ['routecraft',      'AI route generator · web'],
             ['splitdecision',   'iOS split tracker · mobile'],
             ['fraud-detection', 'credit card fraud model · ml'],
             ['harvardx',        'data science certificate · education'],
             ['running',         'XC &amp; track · athletics'],
-        ];
-        items.forEach(([name, desc], i) => {
-            const prefix = i < items.length - 1 ? '├──' : '└──';
-            line(`  <span class="c-dim">${prefix}</span> <span class="c-blue">${name.padEnd(18)}</span><span class="c-dim">${desc}</span>`);
+        ].forEach(([name, desc], i, arr) => {
+            const p = i < arr.length - 1 ? '├──' : '└──';
+            line(`  <span class="c-dim">${p}</span> <span class="c-blue">${name.padEnd(18)}</span><span class="c-dim">${desc}</span>`);
         });
         blank();
     }
-
-    // ── cat sub-commands ─────────────────────────────────────
 
     function catRouteEval() {
         blank();
@@ -236,25 +267,12 @@
             return;
         }
         switch (name) {
-            case 'routeeval':
-            case 'llm':
-            case 'research':
-                catRouteEval(); break;
-            case 'routecraft':
-                catRoutecraft(); break;
-            case 'splitdecision':
-            case 'split':
-                catSplitDecision(); break;
-            case 'fraud':
-            case 'fraud-detection':
-                catFraud(); break;
-            case 'harvardx':
-            case 'harvard':
-                catHarvardX(); break;
-            case 'running':
-            case 'athletics':
-            case 'track':
-                catRunning(); break;
+            case 'routeeval': case 'llm': case 'research': catRouteEval(); break;
+            case 'routecraft':                             catRoutecraft(); break;
+            case 'splitdecision': case 'split':            catSplitDecision(); break;
+            case 'fraud': case 'fraud-detection':          catFraud(); break;
+            case 'harvardx': case 'harvard':               catHarvardX(); break;
+            case 'running': case 'athletics': case 'track': catRunning(); break;
             default:
                 line(`  <span class="c-red">cat: ${esc(name)}: no such project</span>`);
                 line(`  <span class="c-dim">try 'ls' to see available projects</span>`);
@@ -300,24 +318,65 @@
             blank();
             line(`  <span class="c-red">open: unknown target '${esc(target)}'</span>`);
             blank();
-            line(`  <span class="c-dim">available targets:</span>`);
+            line(`  <span class="c-dim">available:</span>`);
             line(`  <span class="c-blue">  ${Object.keys(LINKS).join('  ')}</span>`);
             blank();
             return;
         }
-        if (target === 'email') {
-            window.location.href = url;
-        } else {
-            window.open(url, '_blank');
-        }
+        target === 'email' ? (window.location.href = url) : window.open(url, '_blank');
         blank();
         line(`  <span class="c-green">✓</span>  opening <span class="c-blue">${esc(target)}</span>...`);
         blank();
     }
 
-    function cmdClear() {
-        outputEl.innerHTML = '';
+    function cmdTheme(args) {
+        const name = (args[0] || '').toLowerCase();
+        if (!name) {
+            blank();
+            line(`  <span class="c-orange">available themes</span>`);
+            blank();
+            const current = localStorage.getItem('vjroy_theme') || 'default';
+            Object.keys(THEMES).forEach(t =>
+                line(`  <span class="c-blue">${t}</span>${t === current ? '  <span class="c-dim">← active</span>' : ''}`)
+            );
+            blank();
+            line(`  <span class="c-dim">usage: theme &lt;name&gt;</span>`);
+            blank();
+            return;
+        }
+        if (applyTheme(name)) {
+            blank();
+            line(`  <span class="c-green">✓</span>  theme set to <span class="c-blue">${esc(name)}</span>`);
+            blank();
+        } else {
+            blank();
+            line(`  <span class="c-red">theme: unknown '${esc(name)}'</span>`);
+            line(`  <span class="c-dim">available: ${Object.keys(THEMES).join(' · ')}</span>`);
+            blank();
+        }
     }
+
+    function cmdPing(args) {
+        const host = esc(args[0] || 'github.com');
+        blank();
+        line(`  PING ${host}: 56 data bytes`);
+        let seq = 0;
+        const iv = setInterval(() => {
+            const ms = (Math.random() * 12 + 4).toFixed(3);
+            line(`  64 bytes from ${host}: icmp_seq=${seq} ttl=55 time=<span class="c-green">${ms} ms</span>`);
+            if (++seq >= 4) {
+                clearInterval(iv);
+                setTimeout(() => {
+                    blank();
+                    line(`  --- ${host} ping statistics ---`);
+                    line(`  <span class="c-dim">4 packets transmitted, 4 received, 0% packet loss</span>`);
+                    blank();
+                }, 200);
+            }
+        }, 600);
+    }
+
+    function cmdClear() { outputEl.innerHTML = ''; }
 
     function cmdDate() {
         blank();
@@ -332,13 +391,17 @@
     }
 
     // ── Command processor ─────────────────────────────────────
+    const ALL_CMDS   = ['help', 'about', 'whoami', 'ls', 'cat', 'skills', 'contact', 'resume', 'open', 'theme', 'ping', 'clear', 'date', 'echo', 'pwd'];
+    const CAT_ARGS   = ['routeeval', 'routecraft', 'splitdecision', 'fraud-detection', 'harvardx', 'running'];
+    const OPEN_ARGS  = Object.keys(LINKS);
+    const THEME_ARGS = Object.keys(THEMES);
+
     function processCommand(raw) {
         const trimmed = raw.trim();
         if (!trimmed) return;
 
         cmdHistory.unshift(trimmed);
         histIdx = -1;
-
         echoCmd(trimmed);
 
         const parts = trimmed.split(/\s+/);
@@ -346,108 +409,70 @@
         const args  = parts.slice(1);
 
         switch (cmd) {
-            case 'help':
-            case '?':
-                cmdHelp(); break;
-            case 'about':
-            case 'whoami':
-                cmdAbout(); break;
-            case 'ls':
-            case 'dir':
-            case 'projects':
-                cmdLs(); break;
-            case 'cat':
-                cmdCat(args); break;
-            case 'skills':
-            case 'stack':
-                cmdSkills(); break;
-            case 'contact':
-                cmdContact(); break;
-            case 'resume':
-                cmdResume(); break;
-            case 'open':
-                cmdOpen(args); break;
-            case 'clear':
-            case 'cls':
-                cmdClear(); break;
-            case 'date':
-                cmdDate(); break;
-            case 'echo':
-                cmdEcho(args); break;
-            case 'sudo':
-                blank();
-                line(`  <span class="c-red">veejhay is not in the sudoers file. This incident will be reported.</span>`);
-                blank();
-                break;
-            case 'rm':
-            case 'rm-rf':
-                blank();
-                line(`  <span class="c-red">nice try.</span>`);
-                blank();
-                break;
-            case 'exit':
-            case 'logout':
-            case 'quit':
-                blank();
-                line(`  <span class="c-dim">there's no escaping the terminal.</span>`);
-                blank();
-                break;
+            case 'help': case '?':                      cmdHelp();        break;
+            case 'about': case 'whoami':                cmdAbout();       break;
+            case 'ls': case 'dir': case 'projects':     cmdLs();          break;
+            case 'cat':                                 cmdCat(args);     break;
+            case 'skills': case 'stack':                cmdSkills();      break;
+            case 'contact':                             cmdContact();     break;
+            case 'resume':                              cmdResume();      break;
+            case 'open':                                cmdOpen(args);    break;
+            case 'theme':                               cmdTheme(args);   break;
+            case 'ping':                                cmdPing(args);    break;
+            case 'clear': case 'cls':                   cmdClear();       break;
+            case 'date':                                cmdDate();        break;
+            case 'echo':                                cmdEcho(args);    break;
             case 'pwd':
-                blank();
-                line(`  /home/veejhay`);
-                blank();
-                break;
-            default:
+                blank(); line(`  /home/veejhay`); blank(); break;
+            case 'sudo':
+                blank(); line(`  <span class="c-red">veejhay is not in the sudoers file. This incident will be reported.</span>`); blank(); break;
+            case 'rm':
+                blank(); line(`  <span class="c-red">nice try.</span>`); blank(); break;
+            case 'exit': case 'logout': case 'quit':
+                blank(); line(`  <span class="c-dim">there's no escaping the terminal.</span>`); blank(); break;
+            default: {
                 blank();
                 line(`  <span class="c-red">${esc(cmd)}: command not found</span>`);
-                line(`  <span class="c-dim">type 'help' to see available commands</span>`);
+                const suggestion = ALL_CMDS.find(c => lev(cmd, c) <= 2);
+                if (suggestion) {
+                    line(`  <span class="c-dim">did you mean: <span class="c-blue">${esc(suggestion)}</span>?</span>`);
+                } else {
+                    line(`  <span class="c-dim">type 'help' to see available commands</span>`);
+                }
                 blank();
+            }
         }
-
-        scrollBottom();
     }
 
-    // ── Tab completion ────────────────────────────────────────
-    const ALL_CMDS     = ['help', 'about', 'whoami', 'ls', 'cat', 'skills', 'contact', 'resume', 'open', 'clear', 'date', 'echo', 'pwd'];
-    const CAT_ARGS     = ['routeeval', 'routecraft', 'splitdecision', 'fraud-detection', 'harvardx', 'running'];
-    const OPEN_ARGS    = Object.keys(LINKS);
-
+    // ── Tab completion ─────────────────────────────────────────
     function tabComplete(val) {
         const parts = val.trimStart().split(/\s+/);
         if (parts.length === 1) {
-            const matches = ALL_CMDS.filter(c => c.startsWith(parts[0]));
-            if (matches.length === 1) return matches[0] + ' ';
-            if (matches.length > 1) {
-                echoCmd(val);
-                blank();
-                line(`  ${matches.join('  ')}`);
-                blank();
-            }
+            const m = ALL_CMDS.filter(c => c.startsWith(parts[0]));
+            if (m.length === 1) return m[0] + ' ';
+            if (m.length > 1) { echoCmd(val); blank(); line(`  ${m.join('  ')}`); blank(); }
             return val;
         }
         if (parts.length === 2) {
-            const baseCmd = parts[0].toLowerCase();
-            const partial = parts[1].toLowerCase();
-            let pool = [];
-            if (baseCmd === 'cat') pool = CAT_ARGS;
-            if (baseCmd === 'open') pool = OPEN_ARGS;
-            const matches = pool.filter(x => x.startsWith(partial));
-            if (matches.length === 1) return parts[0] + ' ' + matches[0];
-            if (matches.length > 1) {
-                echoCmd(val);
-                blank();
-                line(`  ${matches.join('  ')}`);
-                blank();
-            }
+            const base = parts[0].toLowerCase(), partial = parts[1].toLowerCase();
+            const pool = base === 'cat' ? CAT_ARGS : base === 'open' ? OPEN_ARGS : base === 'theme' ? THEME_ARGS : [];
+            const m = pool.filter(x => x.startsWith(partial));
+            if (m.length === 1) return parts[0] + ' ' + m[0];
+            if (m.length > 1) { echoCmd(val); blank(); line(`  ${m.join('  ')}`); blank(); }
         }
         return val;
     }
 
-    // ── Keyboard handling ─────────────────────────────────────
+    // ── Keyboard handling ──────────────────────────────────────
+    let demoAborted = false;
+
     inputEl.addEventListener('keydown', (e) => {
+        demoAborted = true;
+
         if (e.key === 'Enter') {
             const val = inputEl.value;
             inputEl.value = '';
+            updateCursor();
             processCommand(val);
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
@@ -456,37 +481,80 @@
                 inputEl.value = cmdHistory[histIdx];
                 setTimeout(() => inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length), 0);
             }
+            updateCursor();
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
-            if (histIdx > 0) {
-                histIdx--;
-                inputEl.value = cmdHistory[histIdx];
-            } else if (histIdx === 0) {
-                histIdx = -1;
-                inputEl.value = '';
-            }
+            if (histIdx > 0) { histIdx--; inputEl.value = cmdHistory[histIdx]; }
+            else if (histIdx === 0) { histIdx = -1; inputEl.value = ''; }
+            updateCursor();
         } else if (e.key === 'Tab') {
             e.preventDefault();
             inputEl.value = tabComplete(inputEl.value);
             inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length);
-        } else if (e.key === 'l' && e.ctrlKey) {
+            updateCursor();
+        } else if (e.ctrlKey && e.key === 'l') {
             e.preventDefault();
             cmdClear();
-        } else if (e.key === 'c' && e.ctrlKey) {
+        } else if (e.ctrlKey && e.key === 'c') {
             e.preventDefault();
-            if (inputEl.value) {
-                echoCmd(inputEl.value + '^C');
-                inputEl.value = '';
-            }
+            if (inputEl.value) { echoCmd(inputEl.value + '^C'); inputEl.value = ''; updateCursor(); }
         }
     });
 
-    // Tap/click anywhere → focus input
-    document.addEventListener('click', () => inputEl.focus());
+    // Click anywhere → focus input (skip mobile buttons which handle themselves)
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.mobile-cmd')) inputEl.focus();
+    });
 
-    // ── Boot sequence ─────────────────────────────────────────
+    // Mobile command buttons
+    document.querySelectorAll('.mobile-cmd').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            demoAborted = true;
+            inputEl.value = '';
+            processCommand(btn.dataset.cmd);
+            inputEl.focus();
+        });
+    });
+
+    // ── Auto-demo ──────────────────────────────────────────────
+    function autoDemo() {
+        demoAborted = false;
+        const cmd = 'whoami';
+        let i = 0;
+        function typeNext() {
+            if (demoAborted) { inputEl.value = ''; updateCursor(); return; }
+            if (i < cmd.length) {
+                inputEl.value = cmd.slice(0, ++i);
+                updateCursor();
+                setTimeout(typeNext, 70 + Math.random() * 50);
+            } else {
+                setTimeout(() => {
+                    if (demoAborted) { inputEl.value = ''; updateCursor(); return; }
+                    const val = inputEl.value;
+                    inputEl.value = '';
+                    updateCursor();
+                    processCommand(val);
+                }, 380);
+            }
+        }
+        typeNext();
+    }
+
+    // ── Boot ───────────────────────────────────────────────────
     function boot() {
-        // VJ logo: V=9 chars, gap=2, J=7 chars, gap=2 → 22-char left margin before info
+        // Last login from localStorage
+        const LOGIN_KEY = 'vjroy_last_login';
+        const lastRaw   = localStorage.getItem(LOGIN_KEY);
+        localStorage.setItem(LOGIN_KEY, new Date().toISOString());
+
+        if (lastRaw) {
+            const d = new Date(lastRaw);
+            line(`<span class="c-dim">Last login: ${d.toDateString()} ${d.toLocaleTimeString()}</span>`);
+            blank();
+        }
+
+        // VJ logo: V=9 chars · gap=2 · J=7 chars · gap=2 → 22-char left margin
         const BOOT_LINES = [
             `  <span class="c-blue">██╗   ██╗</span>  <span class="c-blue">    ██╗</span>  <span class="c-white">veejhay</span><span class="c-dim">@</span><span class="c-white">portfolio</span>`,
             `  <span class="c-blue">██║   ██║</span>  <span class="c-blue">    ██║</span>  <span class="c-dim">──────────────────────────────</span>`,
@@ -505,6 +573,8 @@
                 line(html);
                 if (i === BOOT_LINES.length - 1) {
                     inputEl.focus();
+                    updateCursor();
+                    setTimeout(autoDemo, 650);
                 }
             }, i * 35);
         });
