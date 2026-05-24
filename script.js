@@ -88,7 +88,7 @@
         lines([
             `  <span class="c-orange">Veejhay Roy</span>`,
             `  <span class="c-dim">────────────────────────────────────────────</span>`,
-            `  CS &amp; Machine Learning student`,
+            `  CS @ Georgia Tech '30`,
             `  New Jersey, US`,
             ``,
             `  Currently researching how well LLMs reason about`,
@@ -486,15 +486,15 @@
 
     // ── Boot sequence ─────────────────────────────────────────
     function boot() {
-        // Each line appears with a short stagger so it reads like a real terminal output
+        // VJ logo: V=9 chars, gap=2, J=7 chars, gap=2 → 22-char left margin before info
         const BOOT_LINES = [
-            `  <span class="c-blue">██╗   ██╗</span>  <span class="c-white">veejhay</span><span class="c-dim">@</span><span class="c-white">portfolio</span>`,
-            `  <span class="c-blue">██║   ██║</span>  <span class="c-dim">─────────────────────────────</span>`,
-            `  <span class="c-blue">╚██╗ ██╔╝</span>  <span class="c-dim">role    </span>  CS &amp; ML Student`,
-            `  <span class="c-blue"> ╚████╔╝ </span>  <span class="c-dim">loc     </span>  New Jersey, US`,
-            `  <span class="c-blue">  ╚═══╝  </span>  <span class="c-dim">research</span>  RouteEval · ACL ARR 2025`,
-            `            <span class="c-dim">app     </span>  SplitDecision · 100+ athletes`,
-            `            <span class="c-dim">sport   </span>  XC &amp; Track · All-County`,
+            `  <span class="c-blue">██╗   ██╗</span>  <span class="c-blue">    ██╗</span>  <span class="c-white">veejhay</span><span class="c-dim">@</span><span class="c-white">portfolio</span>`,
+            `  <span class="c-blue">██║   ██║</span>  <span class="c-blue">    ██║</span>  <span class="c-dim">──────────────────────────────</span>`,
+            `  <span class="c-blue">╚██╗ ██╔╝</span>  <span class="c-blue">    ██║</span>  <span class="c-dim">role    </span>  CS @ Georgia Tech '30`,
+            `  <span class="c-blue"> ╚████╔╝ </span>  <span class="c-blue">██╗ ██║</span>  <span class="c-dim">loc     </span>  New Jersey, US`,
+            `  <span class="c-blue">   ╚═╝   </span>  <span class="c-blue">╚═════╝</span>  <span class="c-dim">research</span>  RouteEval · ACL ARR 2025`,
+            `                      <span class="c-dim">app     </span>  SplitDecision · 100+ athletes`,
+            `                      <span class="c-dim">sport   </span>  XC &amp; Track · All-County`,
             ``,
             `  <span class="c-dim">type </span><span class="c-blue">help</span><span class="c-dim"> to get started</span>`,
             ``,
