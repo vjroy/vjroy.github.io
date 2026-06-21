@@ -4,18 +4,26 @@
 
 <section class="hero" id="top">
   <div class="wrap hero__inner">
-    <p class="eyebrow hero__eyebrow" data-hero-fade>Veejhay Roy — New Jersey, US</p>
+    <p class="eyebrow hero__eyebrow" data-hero-fade data-parallax="0.03">
+      Veejhay Roy — New Jersey, US
+    </p>
 
-    <h1 class="hero__title">
+    <h1 class="hero__title" data-hero-weight>
       <span class="hero__line"><span class="hero__line-in" data-hero-line>Researcher,</span></span>
       <span class="hero__line"><span class="hero__line-in" data-hero-line>developer</span></span>
       <span class="hero__line hero__line--amp">
         <span class="hero__line-in" data-hero-line>&amp; runner.</span>
-        <img class="hero__portrait" src="/pic2.jpg" alt="Veejhay Roy" data-hero-fade />
+        <img
+          class="hero__portrait"
+          src="/pic2.jpg"
+          alt="Veejhay Roy"
+          data-hero-fade
+          data-parallax="-0.07"
+        />
       </span>
     </h1>
 
-    <div class="hero__foot">
+    <div class="hero__foot" data-parallax="0.04">
       <p class="hero__lede" data-hero-fade>
         CS @ Georgia Tech ’30. I build things at the intersection of AI, mobile, and the outdoors —
         from an LLM spatial-reasoning benchmark to an iOS app used by 100+ athletes.
@@ -49,6 +57,8 @@
     line-height: 0.92;
     letter-spacing: -0.02em;
     font-weight: 300;
+    font-variation-settings: 'wght' 300;
+    transition: font-variation-settings 0.6s var(--ease);
   }
   .hero__line--amp .hero__line-in {
     font-style: italic;
@@ -126,10 +136,74 @@
     opacity: 0;
   }
 
+  /* Scroll-parallax targets: JS sets transform: translateY() via rAF.
+     Never applied to [data-hero-line]/.hero__line-in — the loader owns those. */
+  [data-parallax] {
+    will-change: transform;
+  }
+
   @media (max-width: 600px) {
     .hero__foot {
       flex-direction: column;
       align-items: flex-start;
     }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__title {
+      transition: none;
+      font-variation-settings: 'wght' 440;
+    }
+  }
 </style>
+
+<script>
+  // Kinetic hero: scroll parallax on the portrait/eyebrow/foot, plus a slow
+  // variable-weight ease on the headline. Never touches [data-hero-line] —
+  // app.ts's revealHero() owns transform on those during the loader reveal.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const hero = document.querySelector<HTMLElement>('.hero');
+  const title = document.querySelector<HTMLElement>('[data-hero-weight]');
+  const parallaxEls = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]'));
+
+  if (!reduceMotion && hero && parallaxEls.length) {
+    const heroEl = hero;
+    const MIN_WGHT = 300;
+    const MAX_WGHT = 440;
+
+    let ticking = false;
+
+    function update() {
+      ticking = false;
+      const rect = heroEl.getBoundingClientRect();
+      // 0 at top of viewport, capped to the hero's own height so the drift
+      // settles once the hero has scrolled past (stays subtle deep in the page).
+      const scrolled = Math.min(Math.max(-rect.top, 0), rect.height);
+      const progress = rect.height > 0 ? scrolled / rect.height : 0;
+
+      // Parallax: drift each element by its own rate (tens of px max).
+      for (const el of parallaxEls) {
+        const rate = parseFloat(el.dataset.parallax ?? '0');
+        const offset = scrolled * rate;
+        el.style.transform = `translateY(${offset.toFixed(2)}px)`;
+      }
+
+      // Variable-weight headline: ease wght as the hero scrolls past.
+      if (title) {
+        const wght = MIN_WGHT + (MAX_WGHT - MIN_WGHT) * progress;
+        title.style.fontVariationSettings = `'wght' ${wght.toFixed(1)}`;
+      }
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+  }
+</script>
