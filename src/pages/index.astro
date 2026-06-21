@@ -7,12 +7,14 @@ import Hero from '../components/Hero.astro';
 import Gallery from '../components/Gallery.astro';
 import About from '../components/About.astro';
 import Footer from '../components/Footer.astro';
+import SectionIndex from '../components/SectionIndex.astro';
 ---
 
 <Base loading={true}>
   <Loader />
   <Cursor />
   <Nav />
+  <SectionIndex />
   <main id="main">
     <Hero />
     <Gallery />
