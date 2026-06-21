@@ -115,6 +115,7 @@ function initCursor() {
   const el = document.querySelector<HTMLElement>('[data-cursor-el]');
   const dot = document.querySelector<HTMLElement>('[data-cursor-dot]');
   const ring = document.querySelector<HTMLElement>('[data-cursor-ring]');
+  const label = document.querySelector<HTMLElement>('[data-cursor-label]');
   if (!finePointer || reduceMotion || !el || !dot || !ring) {
     el?.remove();
     return;
@@ -126,6 +127,12 @@ function initCursor() {
   let rx = mx,
     ry = my;
 
+  // Magnetic snap: when set, the ring eases toward this point (a link/button's
+  // centre) instead of the raw pointer position, with a few px of "give".
+  let magnetX: number | null = null;
+  let magnetY: number | null = null;
+  const MAGNET_PULL = 0.35;
+
   window.addEventListener('mousemove', (e) => {
     mx = e.clientX;
     my = e.clientY;
@@ -134,17 +141,60 @@ function initCursor() {
   });
 
   const loop = () => {
-    rx += (mx - rx) * 0.18;
-    ry += (my - ry) * 0.18;
+    const tx = magnetX ?? mx;
+    const ty = magnetY ?? my;
+    rx += (tx - rx) * (magnetX === null ? 0.18 : MAGNET_PULL);
+    ry += (ty - ry) * (magnetY === null ? 0.18 : MAGNET_PULL);
     ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
 
-  const hoverTargets = '[data-cursor], [data-cursor-card], a, button';
+  // Contextual label + state class, shared by the hover wiring below.
+  const setContext = (text: string, stateClass: string) => {
+    if (label) label.textContent = text;
+    document.body.classList.remove('cursor-view', 'cursor-drag');
+    document.body.classList.add(stateClass);
+  };
+  // Re-derive context from an ancestor (e.g. leaving a [data-slide] back onto
+  // its [data-stage]) instead of always clearing, so nested targets don't
+  // stomp on the container's label.
+  const restoreContext = (from: HTMLElement) => {
+    const card = from.closest<HTMLElement>('[data-cursor-card], [data-slide]');
+    const stage = from.closest<HTMLElement>('[data-stage]');
+    if (card) setContext('View', 'cursor-view');
+    else if (stage) setContext('Drag', 'cursor-drag');
+    else {
+      if (label) label.textContent = '';
+      document.body.classList.remove('cursor-view', 'cursor-drag');
+    }
+  };
+
+  const hoverTargets = '[data-cursor], [data-cursor-card], [data-slide], [data-stage], a, button';
   document.querySelectorAll<HTMLElement>(hoverTargets).forEach((t) => {
-    t.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-    t.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    const isView = t.matches('[data-cursor-card], [data-slide]');
+    const isDrag = t.matches('[data-stage]');
+    const isMagnetic = t.matches('a, button');
+
+    t.addEventListener('mouseenter', () => {
+      document.body.classList.add('cursor-hover');
+      if (isView) setContext('View', 'cursor-view');
+      else if (isDrag) setContext('Drag', 'cursor-drag');
+
+      if (isMagnetic) {
+        const rect = t.getBoundingClientRect();
+        magnetX = rect.left + rect.width / 2;
+        magnetY = rect.top + rect.height / 2;
+      }
+    });
+    t.addEventListener('mouseleave', () => {
+      document.body.classList.remove('cursor-hover');
+      if (isView || isDrag) restoreContext(t.parentElement ?? t);
+      if (isMagnetic) {
+        magnetX = null;
+        magnetY = null;
+      }
+    });
   });
 }
 

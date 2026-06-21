@@ -4,18 +4,43 @@
 
 <section class="hero" id="top">
   <div class="wrap hero__inner">
-    <p class="eyebrow hero__eyebrow" data-hero-fade>Veejhay Roy — New Jersey, US</p>
+    <p class="eyebrow hero__eyebrow" data-hero-fade data-parallax="0.03">
+      Veejhay Roy — New Jersey, US
+    </p>
 
-    <h1 class="hero__title">
+    <h1 class="hero__title" data-hero-weight>
       <span class="hero__line"><span class="hero__line-in" data-hero-line>Researcher,</span></span>
       <span class="hero__line"><span class="hero__line-in" data-hero-line>developer</span></span>
       <span class="hero__line hero__line--amp">
-        <span class="hero__line-in" data-hero-line>&amp; runner.</span>
-        <img class="hero__portrait" src="/pic2.jpg" alt="Veejhay Roy" data-hero-fade />
+        <span class="hero__amp-mask"
+          ><span class="hero__line-in" data-hero-line>&amp; runner.</span></span
+        >
+        <svg
+          class="hero__underline"
+          viewBox="0 0 320 24"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            class="hero__underline-path"
+            d="M4 15.5C45 9 95 7.5 138 11.5C175 15 205 18.5 246 12.5C272 8.5 296 9.5 316 13"
+            fill="none"
+            stroke="var(--accent)"
+            stroke-width="5"
+            stroke-linecap="round"></path>
+        </svg>
+        <img
+          class="hero__portrait"
+          src="/pic2.jpg"
+          alt="Veejhay Roy"
+          data-hero-fade
+          data-parallax="-0.07"
+        />
       </span>
     </h1>
 
-    <div class="hero__foot">
+    <div class="hero__foot" data-parallax="0.04">
       <p class="hero__lede" data-hero-fade>
         CS @ Georgia Tech ’30. I build things at the intersection of AI, mobile, and the outdoors —
         from an LLM spatial-reasoning benchmark to an iOS app used by 100+ athletes.
@@ -49,6 +74,8 @@
     line-height: 0.92;
     letter-spacing: -0.02em;
     font-weight: 300;
+    font-variation-settings: 'wght' 300;
+    transition: font-variation-settings 0.6s var(--ease);
   }
   .hero__line--amp .hero__line-in {
     font-style: italic;
@@ -66,7 +93,68 @@
     align-items: center;
     gap: clamp(1rem, 0.5rem + 3vw, 3.5rem);
     flex-wrap: wrap;
+    position: relative;
+    overflow: visible;
   }
+
+  /* ── Accent underline sweep ─────────────────────────────── */
+  /* Re-applies the line-mask clip (lost when .hero__line--amp opened up to
+     position the underline) to just the text, not the portrait or underline. */
+  .hero__amp-mask {
+    display: inline-block;
+    overflow: hidden;
+  }
+  .hero__underline {
+    position: absolute;
+    left: 0;
+    bottom: 0.06em;
+    width: clamp(7rem, 4rem + 12vw, 14rem);
+    height: 0.3em;
+    min-height: 10px;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .hero__underline-path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-dasharray: 420;
+    stroke-dashoffset: 420;
+  }
+  /* Draw once, ~1.2s after load (after the loader/line reveal settles) */
+  :global(body:not([data-loading])) .hero__underline-path {
+    animation: hero-underline-draw 0.9s var(--ease) 1.2s forwards;
+  }
+  /* Replay the draw on hover of the whole title. A distinct keyframe name
+     (vs. the intro draw) forces the browser to treat this as a fresh
+     animation rather than a no-op continuation of the already-finished one. */
+  .hero__title:hover .hero__underline-path {
+    animation: hero-underline-draw-replay 0.7s var(--ease) forwards;
+  }
+
+  @keyframes hero-underline-draw {
+    from {
+      stroke-dashoffset: 420;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes hero-underline-draw-replay {
+    from {
+      stroke-dashoffset: 420;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__underline-path {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+  }
+
   .hero__portrait {
     width: clamp(70px, 6vw + 40px, 150px);
     height: clamp(70px, 6vw + 40px, 150px);
@@ -126,10 +214,74 @@
     opacity: 0;
   }
 
+  /* Scroll-parallax targets: JS sets transform: translateY() via rAF.
+     Never applied to [data-hero-line]/.hero__line-in — the loader owns those. */
+  [data-parallax] {
+    will-change: transform;
+  }
+
   @media (max-width: 600px) {
     .hero__foot {
       flex-direction: column;
       align-items: flex-start;
     }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__title {
+      transition: none;
+      font-variation-settings: 'wght' 440;
+    }
+  }
 </style>
+
+<script>
+  // Kinetic hero: scroll parallax on the portrait/eyebrow/foot, plus a slow
+  // variable-weight ease on the headline. Never touches [data-hero-line] —
+  // app.ts's revealHero() owns transform on those during the loader reveal.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const hero = document.querySelector<HTMLElement>('.hero');
+  const title = document.querySelector<HTMLElement>('[data-hero-weight]');
+  const parallaxEls = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]'));
+
+  if (!reduceMotion && hero && parallaxEls.length) {
+    const heroEl = hero;
+    const MIN_WGHT = 300;
+    const MAX_WGHT = 440;
+
+    let ticking = false;
+
+    function update() {
+      ticking = false;
+      const rect = heroEl.getBoundingClientRect();
+      // 0 at top of viewport, capped to the hero's own height so the drift
+      // settles once the hero has scrolled past (stays subtle deep in the page).
+      const scrolled = Math.min(Math.max(-rect.top, 0), rect.height);
+      const progress = rect.height > 0 ? scrolled / rect.height : 0;
+
+      // Parallax: drift each element by its own rate (tens of px max).
+      for (const el of parallaxEls) {
+        const rate = parseFloat(el.dataset.parallax ?? '0');
+        const offset = scrolled * rate;
+        el.style.transform = `translateY(${offset.toFixed(2)}px)`;
+      }
+
+      // Variable-weight headline: ease wght as the hero scrolls past.
+      if (title) {
+        const wght = MIN_WGHT + (MAX_WGHT - MIN_WGHT) * progress;
+        title.style.fontVariationSettings = `'wght' ${wght.toFixed(1)}`;
+      }
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+  }
+</script>

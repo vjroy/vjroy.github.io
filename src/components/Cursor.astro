@@ -1,10 +1,14 @@
 ---
 // Custom cursor: a small dot + a lagging ring. Disabled on touch / reduced-motion
 // (handled in app.ts). Elements with [data-cursor] / [data-cursor-card] grow it.
+// [data-cursor-label] surfaces a short contextual word ("View" / "Drag") set by
+// initCursor() depending on what's being hovered.
 ---
 
 <div class="cursor" data-cursor-el aria-hidden="true">
-  <div class="cursor__ring" data-cursor-ring></div>
+  <div class="cursor__ring" data-cursor-ring>
+    <span class="cursor__label" data-cursor-label></span>
+  </div>
   <div class="cursor__dot" data-cursor-dot></div>
 </div>
 
@@ -41,6 +45,9 @@
     height: 38px;
     background: transparent;
     border: 1px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition:
       width 0.3s var(--ease),
       height 0.3s var(--ease),
@@ -50,6 +57,36 @@
     width: 64px;
     height: 64px;
     background: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Contextual labels: a project slide/card grows the ring further and tints it
+     with the sage accent; the gallery drag stage keeps the default hover size.
+     Both reveal .cursor__label text. mix-blend-mode: difference (on .cursor)
+     still applies, so the accent reads as an inverted tint against the page. */
+  :global(body.cursor-view) .cursor__ring {
+    width: 84px;
+    height: 84px;
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  :global(body.cursor-drag) .cursor__ring {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .cursor__label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.25s var(--ease);
+    white-space: nowrap;
+  }
+  :global(body.cursor-view) .cursor__label,
+  :global(body.cursor-drag) .cursor__label {
+    opacity: 1;
   }
 
   /* Native cursor stays visible on touch; JS removes .has-cursor when not applicable */

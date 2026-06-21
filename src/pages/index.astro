@@ -4,18 +4,26 @@ import Loader from '../components/Loader.astro';
 import Cursor from '../components/Cursor.astro';
 import Nav from '../components/Nav.astro';
 import Hero from '../components/Hero.astro';
+import Marquee from '../components/Marquee.astro';
 import Gallery from '../components/Gallery.astro';
+import Stats from '../components/Stats.astro';
 import About from '../components/About.astro';
 import Footer from '../components/Footer.astro';
+import Atmosphere from '../components/Atmosphere.astro';
+import SectionIndex from '../components/SectionIndex.astro';
 ---
 
 <Base loading={true}>
+  <Atmosphere />
   <Loader />
   <Cursor />
   <Nav />
+  <SectionIndex />
   <main id="main">
     <Hero />
+    <Marquee />
     <Gallery />
+    <Stats />
     <About />
     <Footer />
   </main>
