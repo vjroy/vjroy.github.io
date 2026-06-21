@@ -1,0 +1,83 @@
+---
+// Cursor-following warm spotlight/vignette. Sits above the static paper grain
+// (z-index: 1) but below real content (z-index: 2), and never intercepts
+// pointer events. Disabled (static, centred) for reduced-motion or coarse
+// pointers — see the scoped script below.
+---
+
+<div class="atmosphere" data-atmosphere aria-hidden="true"></div>
+
+<style>
+  .atmosphere {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+    background: radial-gradient(
+      circle at var(--mx, 50%) var(--my, 35%),
+      rgba(150, 181, 159, 0.16),
+      rgba(205, 198, 190, 0.07) 35%,
+      transparent 65%
+    );
+  }
+
+  /* No fine pointer: keep a soft, static glow instead of hiding it entirely. */
+  @media (pointer: coarse) {
+    .atmosphere {
+      background: radial-gradient(
+        circle at 50% 35%,
+        rgba(150, 181, 159, 0.12),
+        rgba(205, 198, 190, 0.06) 35%,
+        transparent 65%
+      );
+    }
+  }
+
+  /* Respect reduced motion: render centred and static, no pointer tracking. */
+  @media (prefers-reduced-motion: reduce) {
+    .atmosphere {
+      background: radial-gradient(
+        circle at 50% 35%,
+        rgba(150, 181, 159, 0.12),
+        rgba(205, 198, 190, 0.06) 35%,
+        transparent 65%
+      );
+    }
+  }
+</style>
+
+<script>
+  // Cursor spotlight: updates --mx/--my on the element via rAF-throttled
+  // pointermove. Fine-pointer + motion-ok only; otherwise the CSS above
+  // already renders a static centred glow.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  const el = document.querySelector<HTMLElement>('[data-atmosphere]');
+
+  if (el && finePointer && !reduceMotion) {
+    let pendingX = 0;
+    let pendingY = 0;
+    let ticking = false;
+
+    const apply = () => {
+      el.style.setProperty('--mx', `${pendingX}px`);
+      el.style.setProperty('--my', `${pendingY}px`);
+      ticking = false;
+    };
+
+    window.addEventListener(
+      'pointermove',
+      (e) => {
+        pendingX = e.clientX;
+        pendingY = e.clientY;
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(apply);
+        }
+      },
+      { passive: true },
+    );
+  }
+</script>
