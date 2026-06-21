@@ -1,0 +1,167 @@
+---
+// Animated stat band: a row of big Fraunces numbers that count up from 0
+// when scrolled into view. Values are pulled straight from real site content
+// (see Hero.astro lede and src/data/projects.ts) so nothing here is invented.
+interface Stat {
+  /** Numeric target to count up to. Omit for non-numeric values (e.g. a class year). */
+  value?: number;
+  /** Exact string to render — used as-is for non-numeric stats, or built from `value` + `suffix`. */
+  display?: string;
+  /** Appended after the animated number, e.g. "+". */
+  suffix?: string;
+  label: string;
+}
+
+const stats: Stat[] = [
+  { value: 100, suffix: '+', label: 'Athletes using SplitDecision' },
+  { value: 10000, suffix: '+', label: 'Route evaluations in RouteEval' },
+  { value: 13, label: 'LLMs benchmarked' },
+  { display: '’30', label: 'Class year, Georgia Tech' },
+];
+---
+
+<section class="stats section" id="stats" aria-labelledby="stats-heading">
+  <div class="wrap stats__inner">
+    <p class="eyebrow" id="stats-heading" data-reveal>By the numbers</p>
+
+    <dl class="stats__grid" data-stats>
+      {
+        stats.map((s) => (
+          <div class="stat" data-reveal>
+            <dd
+              class="stat__value"
+              data-stat-value
+              data-target={s.value ?? undefined}
+              data-suffix={s.suffix ?? ''}
+              data-final={s.display ?? undefined}
+              aria-label={s.display ?? `${s.value}${s.suffix ?? ''}`}
+            >
+              {s.display ?? `0${s.suffix ?? ''}`}
+            </dd>
+            <dt class="stat__label">{s.label}</dt>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function formatNumber(n: number) {
+    return Math.round(n).toLocaleString('en-US');
+  }
+
+  function showFinal(el: HTMLElement) {
+    const final = el.dataset.final;
+    if (final) {
+      el.textContent = final;
+      return;
+    }
+    const target = Number(el.dataset.target ?? '0');
+    const suffix = el.dataset.suffix ?? '';
+    el.textContent = `${formatNumber(target)}${suffix}`;
+  }
+
+  function animateCount(el: HTMLElement) {
+    // Non-numeric stats (e.g. "'30") just appear — nothing to count.
+    if (el.dataset.final) {
+      showFinal(el);
+      return;
+    }
+
+    const target = Number(el.dataset.target ?? '0');
+    const suffix = el.dataset.suffix ?? '';
+    const duration = 1400;
+    let start: number | null = null;
+
+    const easeOutExpo = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
+
+    const step = (now: number) => {
+      if (start === null) start = now;
+      const elapsed = now - start;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = easeOutExpo(t);
+      el.textContent = `${formatNumber(target * eased)}${suffix}`;
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = `${formatNumber(target)}${suffix}`;
+      }
+    };
+    requestAnimationFrame(step);
+  }
+
+  function initStats() {
+    const values = document.querySelectorAll<HTMLElement>('[data-stat-value]');
+    if (!values.length) return;
+
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      values.forEach(showFinal);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animateCount(entry.target as HTMLElement);
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.3 },
+    );
+    values.forEach((el) => io.observe(el));
+  }
+
+  initStats();
+</script>
+
+<style>
+  .stats__inner {
+    display: grid;
+    gap: clamp(2rem, 1.2rem + 3vw, 3.5rem);
+  }
+
+  .stats__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+  }
+
+  .stat {
+    display: grid;
+    gap: 0.6rem;
+    border-top: 1px solid var(--line);
+    padding-top: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  }
+
+  .stat__value {
+    font-family: var(--font-serif);
+    font-size: var(--step-3);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat__label {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    max-width: 18ch;
+  }
+
+  @media (max-width: 900px) {
+    .stats__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
