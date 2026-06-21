@@ -1,0 +1,104 @@
+---
+// Slow, seamless infinite marquee strip. Pure CSS — the track is duplicated
+// so the looping translateX wraps with no visible seam. Decorative repeats
+// are aria-hidden; the items themselves stay readable to assistive tech.
+const items = [
+  'AI',
+  'iOS',
+  'SPATIAL REASONING',
+  'TRAIL RUNNING',
+  'LLM RESEARCH',
+  "GEORGIA TECH '30",
+];
+---
+
+<div class="marquee" role="presentation">
+  <div class="marquee__track">
+    <ul class="marquee__group">
+      {
+        items.map((item) => (
+          <li class="marquee__item">
+            {item}
+            <span class="marquee__dot" aria-hidden="true" />
+          </li>
+        ))
+      }
+    </ul>
+    <ul class="marquee__group" aria-hidden="true">
+      {
+        items.map((item) => (
+          <li class="marquee__item">
+            {item}
+            <span class="marquee__dot" aria-hidden="true" />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>
+
+<style>
+  .marquee {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 32s linear infinite;
+  }
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+
+  .marquee__group {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .marquee__item {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding-block: clamp(1.1rem, 0.8rem + 1vw, 1.6rem);
+    padding-inline-end: clamp(1.5rem, 1rem + 2vw, 3rem);
+    font-size: var(--step--1);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .marquee__dot {
+    display: inline-block;
+    width: 0.35em;
+    height: 0.35em;
+    border-radius: 999px;
+    background: var(--accent);
+    margin-inline-start: clamp(1.5rem, 1rem + 2vw, 3rem);
+  }
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      overflow-x: auto;
+    }
+    .marquee__track {
+      animation: none;
+    }
+    .marquee__group[aria-hidden='true'] {
+      display: none;
+    }
+  }
+</style>
