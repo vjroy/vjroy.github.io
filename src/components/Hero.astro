@@ -10,7 +10,24 @@
       <span class="hero__line"><span class="hero__line-in" data-hero-line>Researcher,</span></span>
       <span class="hero__line"><span class="hero__line-in" data-hero-line>developer</span></span>
       <span class="hero__line hero__line--amp">
-        <span class="hero__line-in" data-hero-line>&amp; runner.</span>
+        <span class="hero__amp-mask"
+          ><span class="hero__line-in" data-hero-line>&amp; runner.</span></span
+        >
+        <svg
+          class="hero__underline"
+          viewBox="0 0 320 24"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            class="hero__underline-path"
+            d="M4 15.5C45 9 95 7.5 138 11.5C175 15 205 18.5 246 12.5C272 8.5 296 9.5 316 13"
+            fill="none"
+            stroke="var(--accent)"
+            stroke-width="5"
+            stroke-linecap="round"></path>
+        </svg>
         <img class="hero__portrait" src="/pic2.jpg" alt="Veejhay Roy" data-hero-fade />
       </span>
     </h1>
@@ -66,7 +83,68 @@
     align-items: center;
     gap: clamp(1rem, 0.5rem + 3vw, 3.5rem);
     flex-wrap: wrap;
+    position: relative;
+    overflow: visible;
   }
+
+  /* ── Accent underline sweep ─────────────────────────────── */
+  /* Re-applies the line-mask clip (lost when .hero__line--amp opened up to
+     position the underline) to just the text, not the portrait or underline. */
+  .hero__amp-mask {
+    display: inline-block;
+    overflow: hidden;
+  }
+  .hero__underline {
+    position: absolute;
+    left: 0;
+    bottom: 0.06em;
+    width: clamp(7rem, 4rem + 12vw, 14rem);
+    height: 0.3em;
+    min-height: 10px;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .hero__underline-path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-dasharray: 420;
+    stroke-dashoffset: 420;
+  }
+  /* Draw once, ~1.2s after load (after the loader/line reveal settles) */
+  :global(body:not([data-loading])) .hero__underline-path {
+    animation: hero-underline-draw 0.9s var(--ease) 1.2s forwards;
+  }
+  /* Replay the draw on hover of the whole title. A distinct keyframe name
+     (vs. the intro draw) forces the browser to treat this as a fresh
+     animation rather than a no-op continuation of the already-finished one. */
+  .hero__title:hover .hero__underline-path {
+    animation: hero-underline-draw-replay 0.7s var(--ease) forwards;
+  }
+
+  @keyframes hero-underline-draw {
+    from {
+      stroke-dashoffset: 420;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes hero-underline-draw-replay {
+    from {
+      stroke-dashoffset: 420;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__underline-path {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+  }
+
   .hero__portrait {
     width: clamp(70px, 6vw + 40px, 150px);
     height: clamp(70px, 6vw + 40px, 150px);
