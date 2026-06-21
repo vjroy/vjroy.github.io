@@ -1,0 +1,98 @@
+---
+const links = [
+  { label: 'Email', value: 'usroyvj@gmail.com', href: 'mailto:usroyvj@gmail.com' },
+  { label: 'GitHub', value: 'github.com/vjroy', href: 'https://github.com/vjroy' },
+  { label: 'Discord', value: 'veejhay', href: 'https://discord.com/users/688513027124887601' },
+  { label: 'MileSplit', value: 'Race results', href: 'https://nj.milesplit.com/athletes/12388736-veejhay-roy' },
+  { label: 'Résumé', value: 'PDF', href: '/Resume_Veejhay.pdf' },
+];
+const year = new Date().getFullYear();
+---
+<footer class="footer section" id="contact">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal>Contact</p>
+
+    <a class="footer__cta" href="mailto:usroyvj@gmail.com" data-cursor data-reveal>
+      Let’s talk<span class="footer__cta-arrow" aria-hidden="true">↗</span>
+    </a>
+
+    <ul class="footer__links" data-reveal>
+      {links.map((l) => (
+        <li>
+          <a href={l.href} target="_blank" rel="noopener" data-cursor>
+            <span class="footer__link-label">{l.label}</span>
+            <span class="footer__link-value">{l.value}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="footer__bottom">
+      <span>© {year} Veejhay Roy</span>
+      <a class="footer__terminal" href="/terminal" data-cursor title="There's an old terminal in here…">
+        <span class="footer__blink">▍</span> terminal
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer { padding-bottom: clamp(2rem, 1rem + 3vw, 4rem); }
+  .footer__cta {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.2em;
+    margin-block: clamp(1.5rem, 1rem + 3vw, 3rem);
+    font-family: var(--font-serif);
+    font-size: var(--display);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    font-weight: 300;
+    font-style: italic;
+  }
+  .footer__cta-arrow {
+    font-size: 0.4em;
+    transition: transform 0.4s var(--ease);
+  }
+  .footer__cta:hover .footer__cta-arrow { transform: translate(0.15em, -0.15em); }
+
+  .footer__links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    border-top: 1px solid var(--line);
+  }
+  .footer__links li { border-bottom: 1px solid var(--line); }
+  .footer__links a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 1.1rem 0;
+    transition: padding-left 0.35s var(--ease);
+  }
+  .footer__links a:hover { padding-left: 0.6rem; }
+  .footer__link-label {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+  .footer__link-value { font-size: var(--step-0); font-weight: 500; }
+
+  .footer__bottom {
+    margin-top: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+    gap: 1rem;
+  }
+  .footer__terminal {
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
+    transition: color 0.3s;
+  }
+  .footer__terminal:hover { color: var(--ink); }
+  .footer__blink { animation: blink 1.1s step-end infinite; }
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+</style>

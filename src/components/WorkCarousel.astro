@@ -1,0 +1,163 @@
+---
+import { projects } from '../data/projects';
+---
+<section class="work section" id="work">
+  <div class="wrap work__head">
+    <h2 class="work__title" data-reveal>Selected work</h2>
+    <p class="work__hint" data-reveal>
+      <span aria-hidden="true">←</span>&nbsp; Drag sideways to explore &nbsp;<span aria-hidden="true">→</span>
+    </p>
+  </div>
+
+  <div class="embla" data-embla>
+    <div class="embla__viewport" data-embla-viewport>
+      <div class="embla__container">
+        {projects.map((p) => (
+          <article class="card embla__slide" data-cursor-card>
+            <div class="card__top">
+              <span class="card__index">{p.index}</span>
+              <span class="card__kind">{p.kind} · {p.year}</span>
+            </div>
+
+            <h3 class="card__title">{p.title}</h3>
+            <p class="card__summary">{p.summary}</p>
+
+            <dl class="card__meta">
+              {p.meta.map((m) => (
+                <div class="card__meta-row">
+                  <dt>{m.label}</dt>
+                  <dd>{m.value}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <div class="card__links">
+              {p.links.map((l) => (
+                <a
+                  class="card__link"
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener"
+                  data-cursor
+                >
+                  {l.label}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .work__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: clamp(2rem, 1rem + 3vw, 3.5rem);
+    flex-wrap: wrap;
+  }
+  .work__title {
+    font-size: var(--step-3);
+    letter-spacing: -0.03em;
+  }
+  .work__hint {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+  }
+
+  .embla { overflow: hidden; }
+  .embla__viewport { overflow: hidden; cursor: grab; }
+  .embla__viewport:active { cursor: grabbing; }
+  .embla__container {
+    display: flex;
+    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
+    padding-inline: var(--gutter);
+    touch-action: pan-y;
+  }
+
+  .card {
+    flex: 0 0 auto;
+    width: min(86vw, 480px);
+    min-height: clamp(420px, 60vh, 560px);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.5s var(--ease), border-color 0.4s;
+  }
+  .card:hover { border-color: var(--ink); }
+
+  .card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+  }
+  .card__index {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .card__kind { letter-spacing: 0.04em; text-transform: uppercase; }
+
+  .card__title {
+    margin-top: auto;
+    padding-top: 2rem;
+    font-size: var(--step-2);
+    letter-spacing: -0.025em;
+  }
+  .card__summary {
+    margin-top: 1rem;
+    color: var(--ink-soft);
+    font-size: var(--step-0);
+    line-height: 1.4;
+    max-width: 42ch;
+  }
+
+  .card__meta {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 0.4rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.25rem;
+  }
+  .card__meta-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: var(--step--1);
+  }
+  .card__meta-row dt { color: var(--ink-faint); }
+  .card__meta-row dd { color: var(--ink); font-weight: 500; text-align: right; }
+
+  .card__links {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: var(--step--1);
+    font-weight: 500;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2px;
+    transition: opacity 0.3s;
+  }
+  .card__link:hover { opacity: 0.6; }
+
+  /* Disable native drag-select on text while dragging */
+  .embla__viewport.is-dragging .card { user-select: none; }
+</style>

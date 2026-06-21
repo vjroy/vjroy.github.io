@@ -1,0 +1,30 @@
+---
+// Intro loader: a 0→100 count-up that wipes away to reveal the hero.
+---
+<div class="loader" data-loader aria-hidden="true">
+  <span class="loader__count" data-loader-count>0</span>
+  <span class="loader__pct">%</span>
+</div>
+
+<style>
+  .loader {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: var(--bg);
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: var(--gutter);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .loader__count { font-size: clamp(4rem, 10vw, 12rem); font-variant-numeric: tabular-nums; }
+  .loader__pct { font-size: clamp(1.2rem, 3vw, 2.5rem); margin-left: 0.2em; align-self: flex-end; padding-bottom: 0.4em; }
+  .loader.is-done { pointer-events: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loader { display: none; }
+  }
+</style>

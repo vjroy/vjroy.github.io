@@ -4,31 +4,59 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Static personal portfolio site for Veejhay Roy, hosted on GitHub Pages. No build step — changes to `index.html`, `styles.css`, or `script.js` are deployed by pushing to the `main` branch. The `.nojekyll` file disables Jekyll processing.
+Personal portfolio for Veejhay Roy, hosted on GitHub Pages. Built with **Astro**
+(static output, TypeScript). A clean, light, gallery-style site inspired by
+award-style studio portfolios. The previous terminal-emulator version of the site
+is preserved verbatim as an easter egg at the `/terminal` route.
 
 ## Development
 
-Open `index.html` directly in a browser, or use a local server to avoid CORS issues with the PDF assets:
-
 ```bash
-python3 -m http.server 8080
+npm install
+npm run dev        # dev server (default http://localhost:4321)
+npm run build      # static build → dist/
+npm run preview    # serve the built site
 ```
 
-No package manager, no linter, no test suite.
+No linter or test suite. Node + npm are required (not always present on a fresh machine).
+
+## Deployment
+
+Push to `main` → `.github/workflows/deploy.yml` builds via `withastro/action` and
+deploys `dist/` to GitHub Pages. The repo's **Settings → Pages → Source** must be
+set to **GitHub Actions** (one-time manual step). This is a user site
+(`vjroy.github.io`), so `site` in `astro.config.mjs` is the root with no `base`.
 
 ## Architecture
 
-The site is a single page with three sections driven by `script.js`:
+Single scrolling page composed in `src/pages/index.astro` from components in
+`src/components/`:
 
-- **Loading screen** (`setupLoadingScreen`) — runs a `NumberTicker` from 0→100%, then blur-fades the hero content in. Fires a `loading-screen-complete` custom event when done.
-- **Hero** — typing animation for name/title; particle canvas background (`setupParticles`) using mouse-position magnetism; spinning text ring around the profile image (`setupSpinningText`); macOS-style dock (`setupDockAnimation`) with `window.open`-based click handling to work around z-index conflicts with the GSAP-pinned about section.
-- **About** — GSAP `ScrollTrigger` pins `.about-pin-wrap` while the user scrolls, progressively revealing characters by adjusting `opacity` and `font-weight` (`setupAboutAnimation`).
-- **Projects** — manual CSS transform carousel (`setupProjectsCarousel`), no library.
+- **Loader** — intro 0→100 count-up that wipes up to reveal the hero.
+- **Cursor** — custom dot + lagging ring; pointer-devices only.
+- **Nav** — fixed, `mix-blend-mode: difference`; anchor links smooth-scrolled by Lenis.
+- **Hero** — big editorial headline (line-mask reveal driven by the loader) + portrait.
+- **WorkCarousel** — Embla `dragFree` carousel of project cards; data from `src/data/projects.ts`.
+- **About** — statement, prose, skills chips, brief running mention.
+- **Footer** — contact links, big email CTA, and the subtle `/terminal` link.
 
-### External CDN dependencies (loaded in `index.html`)
-- GSAP 3.12.5 + ScrollTrigger (about section)
-- simple-parallax-js 5.6.2
-- Google Fonts: Inter, JetBrains Mono
+`src/scripts/app.ts` boots all behaviour (Lenis smooth scroll, anchor handling,
+loader, IntersectionObserver reveals for `[data-reveal]`, custom cursor, Embla).
+Everything degrades when `prefers-reduced-motion` is set or there is no fine pointer.
 
-### Key z-index notes
-The dock uses `z-index: 99999–1000001` via inline `!important` styles and a document-level capture listener because the GSAP-pinned `.about-pin-wrap` intercepts pointer events at high z-index. `window.particleField` is exposed globally for potential reuse.
+`src/pages/terminal.astro` is **standalone** — it carries its own dark CSS and loads
+`public/terminal.js` (the original `script.js`, with asset paths made absolute). It
+does not use `Base.astro`, so the main site's tokens never leak into it.
+
+### Styling
+- `src/styles/global.css` holds design tokens (light palette), reset, fluid type
+  scale, reveal base state, and reduced-motion overrides. Components use scoped
+  `<style>` blocks.
+- Font: **General Sans** via Fontshare CDN (closest free match to PP Neue Montreal).
+  To switch to licensed PP Neue Montreal: add woff2 files to `public/fonts/`,
+  add `@font-face` rules in `global.css`, and put it first in `--font-sans`.
+
+### Assets
+Everything served statically lives in `public/`: `pic2.jpg`, the PDFs
+(`Resume_Veejhay.pdf`, `HarvardX.pdf`, `LLM_Research (1).pdf`, `Final Project.pdf`),
+`favicon.svg`, and `terminal.js`. Reference them with absolute paths (`/pic2.jpg`).

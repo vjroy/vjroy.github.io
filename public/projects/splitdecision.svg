@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 860" width="1280" height="860" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="sd-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d2a24"/>
+      <stop offset="1" stop-color="#0f1713"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="860" fill="url(#sd-bg)"/>
+
+  <!-- copy -->
+  <text x="90" y="300" fill="#eef0ec" font-size="56" font-family="Georgia, serif" letter-spacing="-1">SplitDecision</text>
+  <text x="90" y="350" fill="#9fb3a8" font-size="22">Coach-facing split tracking</text>
+  <text x="90" y="384" fill="#9fb3a8" font-size="22">for XC &amp; track teams.</text>
+
+  <g font-size="18" fill="#cbd6cf">
+    <text x="90" y="470">100+ athletes</text>
+    <line x1="90" y1="492" x2="300" y2="492" stroke="#33453c"/>
+    <text x="90" y="540">Swift · SwiftUI</text>
+    <line x1="90" y1="562" x2="300" y2="562" stroke="#33453c"/>
+    <text x="90" y="610">App Store</text>
+  </g>
+
+  <!-- phone -->
+  <g transform="translate(770,120)">
+    <rect x="0" y="0" width="360" height="720" rx="56" fill="#0a0f0c" stroke="#2c3a33" stroke-width="2"/>
+    <rect x="16" y="16" width="328" height="688" rx="44" fill="#10171300"/>
+    <rect x="16" y="16" width="328" height="688" rx="44" fill="#0e1512"/>
+    <rect x="130" y="34" width="100" height="22" rx="11" fill="#0a0f0c"/>
+    <text x="40" y="120" fill="#eef0ec" font-size="26" font-family="Georgia, serif">Workout</text>
+    <text x="40" y="150" fill="#6f857a" font-size="14">400m repeats · 8×</text>
+
+    <!-- split rows -->
+    <g font-size="16">
+      <rect x="32" y="180" width="296" height="58" rx="14" fill="#152019"/>
+      <text x="52" y="216" fill="#cbd6cf">Rep 1</text><text x="296" y="216" fill="#96b59f" text-anchor="end">68.2</text>
+      <rect x="32" y="248" width="296" height="58" rx="14" fill="#152019"/>
+      <text x="52" y="284" fill="#cbd6cf">Rep 2</text><text x="296" y="284" fill="#96b59f" text-anchor="end">67.9</text>
+      <rect x="32" y="316" width="296" height="58" rx="14" fill="#152019"/>
+      <text x="52" y="352" fill="#cbd6cf">Rep 3</text><text x="296" y="352" fill="#96b59f" text-anchor="end">68.5</text>
+      <rect x="32" y="384" width="296" height="58" rx="14" fill="#1c2a22"/>
+      <text x="52" y="420" fill="#eef0ec">Rep 4</text><text x="296" y="420" fill="#eef0ec" text-anchor="end">67.4</text>
+    </g>
+    <rect x="32" y="600" width="296" height="56" rx="28" fill="#96b59f"/>
+    <text x="180" y="635" fill="#0f1713" font-size="18" text-anchor="middle">Save splits</text>
+  </g>
+</svg>

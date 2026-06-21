@@ -81,13 +81,13 @@
         github:        'https://github.com/vjroy',
         discord:       'https://discord.com/users/688513027124887601',
         email:         'mailto:usroyvj@gmail.com',
-        resume:        'Resume_Veejhay.pdf',
+        resume:        '/Resume_Veejhay.pdf',
         routecraft:    'https://routecraft.io',
         milesplit:     'https://nj.milesplit.com/athletes/12388736-veejhay-roy',
         routeeval:     'https://github.com/vjroy/routeeval',
         splitdecision: 'https://apps.apple.com/us/app/split-decision/id6745452671',
-        paper:         'LLM_Research (1).pdf',
-        harvardx:      'HarvardX.pdf',
+        paper:         '/LLM_Research (1).pdf',
+        harvardx:      '/HarvardX.pdf',
         fraud:         'https://github.com/yazganschool/finalproject',
     };
 
@@ -305,7 +305,7 @@
     }
 
     function cmdResume() {
-        window.open('Resume_Veejhay.pdf', '_blank');
+        window.open('/Resume_Veejhay.pdf', '_blank');
         blank();
         line(`  <span class="c-green">✓</span>  opening resume...`);
         blank();

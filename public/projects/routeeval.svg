@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 860" width="1280" height="860" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1280" height="860" fill="#15130f"/>
+  <!-- window chrome -->
+  <rect width="1280" height="56" fill="#1f1c17"/>
+  <circle cx="34" cy="28" r="6" fill="#3a352d"/>
+  <circle cx="56" cy="28" r="6" fill="#3a352d"/>
+  <circle cx="78" cy="28" r="6" fill="#3a352d"/>
+  <text x="640" y="33" fill="#6f685d" font-size="15" text-anchor="middle" letter-spacing="1">routeeval — benchmark</text>
+
+  <!-- header -->
+  <text x="80" y="150" fill="#efe9df" font-size="46" font-family="Georgia, serif" letter-spacing="-1">Spatial reasoning, measured</text>
+  <text x="80" y="190" fill="#8c857a" font-size="20">How well do LLMs generate real running routes?</text>
+
+  <!-- big stats -->
+  <text x="80" y="300" fill="#96b59f" font-size="72" font-family="Georgia, serif">10,000+</text>
+  <text x="80" y="335" fill="#8c857a" font-size="18">evaluations</text>
+  <text x="400" y="300" fill="#efe9df" font-size="72" font-family="Georgia, serif">13</text>
+  <text x="400" y="335" fill="#8c857a" font-size="18">models tested</text>
+
+  <!-- accuracy bars -->
+  <text x="80" y="430" fill="#6f685d" font-size="15" letter-spacing="2">ACCURACY</text>
+  <g font-size="20">
+    <text x="80" y="492" fill="#cfc8bd">GPT-5</text>
+    <rect x="300" y="476" width="760" height="22" rx="11" fill="#26221c"/>
+    <rect x="300" y="476" width="494" height="22" rx="11" fill="#96b59f"/>
+    <text x="1075" y="492" fill="#efe9df">65%</text>
+
+    <text x="80" y="552" fill="#cfc8bd">Grok-4</text>
+    <rect x="300" y="536" width="760" height="22" rx="11" fill="#26221c"/>
+    <rect x="300" y="536" width="418" height="22" rx="11" fill="#7fa389"/>
+    <text x="1075" y="552" fill="#efe9df">55%</text>
+
+    <text x="80" y="612" fill="#cfc8bd">Gemini-2.5-pro</text>
+    <rect x="300" y="596" width="760" height="22" rx="11" fill="#26221c"/>
+    <rect x="300" y="596" width="395" height="22" rx="11" fill="#6b9079"/>
+    <text x="1075" y="612" fill="#efe9df">52%</text>
+  </g>
+
+  <!-- footer chip -->
+  <rect x="80" y="708" width="280" height="44" rx="22" fill="none" stroke="#3a352d"/>
+  <text x="104" y="736" fill="#8c857a" font-size="16">submitted · ACL ARR 2025</text>
+</svg>

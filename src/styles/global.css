@@ -1,0 +1,140 @@
+/* ============================================================
+   Design tokens
+   Light, gallery-style palette inspired by niccolomiranda.com.
+   Typeface: General Sans (free, Fontshare) as the closest match
+   to PP Neue Montreal. To use licensed PP Neue Montreal instead,
+   drop the woff2 files in /public/fonts, add @font-face rules
+   here, and put it first in --font-sans.
+   ============================================================ */
+:root {
+  /* Paper palette — matched to niccolomiranda.com (#cdc6be warm greige) */
+  --bg:        #cdc6be;   /* warm "paper" greige */
+  --bg-2:      #c4bcb2;   /* slightly deeper panel */
+  --ink:       #1d1d1b;   /* warm near-black text */
+  --ink-soft:  #69645f;   /* muted text */
+  --ink-faint: #8a847c;   /* faintest text / hints */
+  --line:      #b0a89d;   /* hairline borders */
+  --accent:    #96b59f;   /* sage accent (used sparingly) */
+
+  --font-sans: 'General Sans', -apple-system, BlinkMacSystemFont,
+               'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: 'Fraunces', 'Editorial New', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Fluid type scale */
+  --step--1: clamp(0.78rem, 0.74rem + 0.18vw, 0.9rem);
+  --step-0:  clamp(0.95rem, 0.9rem + 0.25vw, 1.1rem);
+  --step-1:  clamp(1.2rem, 1.05rem + 0.7vw, 1.6rem);
+  --step-2:  clamp(1.6rem, 1.2rem + 1.8vw, 2.6rem);
+  --step-3:  clamp(2.4rem, 1.4rem + 4.6vw, 5rem);
+  --display: clamp(3rem, 1rem + 11vw, 12rem);
+
+  --maxw: 1440px;
+  --gutter: clamp(1.25rem, 0.5rem + 3vw, 4rem);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* old Edge */
+}
+/* Hide scrollbar visually, keep scrolling (WebKit) */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* Lenis smooth-scroll requires native scroll on html/body */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.5;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+/* Subtle paper grain over the whole page for the newsprint feel */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+}
+/* Keep real content above the grain */
+body > * { position: relative; z-index: 2; }
+
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+ul { list-style: none; }
+
+::selection { background: var(--ink); color: var(--bg); }
+
+h1, h2, h3 { font-weight: 600; line-height: 0.98; letter-spacing: -0.02em; }
+
+/* ── Layout helpers ────────────────────────────────────── */
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section { padding-block: clamp(4rem, 2rem + 8vw, 9rem); }
+
+.eyebrow {
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ── Scroll-reveal base state (JS adds .is-in) ─────────── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  will-change: opacity, transform;
+}
+[data-reveal].is-in { opacity: 1; transform: none; }
+
+/* ── Accessibility ─────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100px; left: 1rem;
+  background: var(--ink); color: var(--bg);
+  padding: 0.5rem 1rem; border-radius: 4px;
+  z-index: 100; transition: top 0.2s;
+}
+.skip-link:focus { top: 1rem; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal] { opacity: 1; transform: none; }
+}

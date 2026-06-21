@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import Loader from '../components/Loader.astro';
+import Cursor from '../components/Cursor.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Gallery from '../components/Gallery.astro';
+import About from '../components/About.astro';
+import Footer from '../components/Footer.astro';
+---
+<Base loading={true}>
+  <Loader />
+  <Cursor />
+  <Nav />
+  <main id="main">
+    <Hero />
+    <Gallery />
+    <About />
+    <Footer />
+  </main>
+
+  <script>
+    import '../scripts/app.ts';
+  </script>
+</Base>
+
+<style is:global>
+  /* Lock scroll until the loader finishes (unless reduced motion) */
+  body[data-loading] { overflow: hidden; height: 100svh; }
+</style>

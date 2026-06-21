@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 860" width="1280" height="860" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1280" height="860" fill="#141518"/>
+  <rect width="1280" height="56" fill="#1c1e22"/>
+  <circle cx="34" cy="28" r="6" fill="#34373d"/>
+  <circle cx="56" cy="28" r="6" fill="#34373d"/>
+  <circle cx="78" cy="28" r="6" fill="#34373d"/>
+  <text x="640" y="33" fill="#6b6f78" font-size="15" text-anchor="middle" letter-spacing="1">fraud-detection.ipynb</text>
+
+  <text x="80" y="150" fill="#eef0f2" font-size="46" font-family="Georgia, serif" letter-spacing="-1">Catching the 0.2%</text>
+  <text x="80" y="190" fill="#878c96" font-size="20">LogReg + Random Forest, balanced with SMOTE.</text>
+
+  <!-- ROC curve panel -->
+  <rect x="80" y="240" width="520" height="500" rx="14" fill="#1b1d21"/>
+  <text x="104" y="284" fill="#6b6f78" font-size="14" letter-spacing="2">ROC CURVE</text>
+  <g stroke="#2a2d33" stroke-width="1">
+    <path d="M130 690 H560 M130 560 H560 M130 430 H560 M130 330 H560"/>
+  </g>
+  <line x1="130" y1="690" x2="560" y2="330" stroke="#3a3d44" stroke-dasharray="6 6"/>
+  <path d="M130 690 C 200 470, 260 380, 560 332" fill="none" stroke="#96b59f" stroke-width="5"/>
+  <text x="430" y="470" fill="#96b59f" font-size="18">AUC 0.98</text>
+  <text x="130" y="722" fill="#6b6f78" font-size="13">false positive rate</text>
+
+  <!-- confusion matrix -->
+  <rect x="640" y="240" width="560" height="500" rx="14" fill="#1b1d21"/>
+  <text x="664" y="284" fill="#6b6f78" font-size="14" letter-spacing="2">CONFUSION MATRIX</text>
+  <g font-size="30" font-family="Georgia, serif" text-anchor="middle">
+    <rect x="690" y="320" width="230" height="180" rx="10" fill="#2c4035"/>
+    <text x="805" y="425" fill="#cfe3d6">9,512</text>
+    <rect x="930" y="320" width="230" height="180" rx="10" fill="#23262b"/>
+    <text x="1045" y="425" fill="#878c96">38</text>
+    <rect x="690" y="510" width="230" height="180" rx="10" fill="#23262b"/>
+    <text x="805" y="615" fill="#878c96">21</text>
+    <rect x="930" y="510" width="230" height="180" rx="10" fill="#2c4035"/>
+    <text x="1045" y="615" fill="#cfe3d6">163</text>
+  </g>
+  <g font-size="14" fill="#6b6f78">
+    <text x="805" y="312" text-anchor="middle">pred. legit</text>
+    <text x="1045" y="312" text-anchor="middle">pred. fraud</text>
+  </g>
+</svg>

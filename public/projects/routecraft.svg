@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 860" width="1280" height="860" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1280" height="860" fill="#eef0ec"/>
+  <!-- window chrome -->
+  <rect width="1280" height="56" fill="#ffffff"/>
+  <circle cx="34" cy="28" r="6" fill="#d6d8d2"/>
+  <circle cx="56" cy="28" r="6" fill="#d6d8d2"/>
+  <circle cx="78" cy="28" r="6" fill="#d6d8d2"/>
+  <rect x="430" y="16" width="420" height="24" rx="12" fill="#f1f2ef"/>
+  <text x="640" y="33" fill="#9aa093" font-size="14" text-anchor="middle">routecraft.io</text>
+
+  <!-- map panel -->
+  <rect x="360" y="92" width="844" height="690" rx="14" fill="#e3e7df"/>
+  <!-- subtle map grid -->
+  <g stroke="#d2d8cc" stroke-width="1">
+    <path d="M360 240 H1204 M360 380 H1204 M360 520 H1204 M360 660 H1204"/>
+    <path d="M520 92 V782 M700 92 V782 M880 92 V782 M1060 92 V782"/>
+  </g>
+  <!-- route line -->
+  <path d="M470 700 C 560 540, 740 600, 800 460 S 1010 300, 1110 220" fill="none" stroke="#96b59f" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="470" cy="700" r="12" fill="#1d1d1b"/>
+  <circle cx="1110" cy="220" r="12" fill="#96b59f" stroke="#1d1d1b" stroke-width="3"/>
+  <rect x="980" y="150" width="150" height="38" rx="8" fill="#1d1d1b"/>
+  <text x="1000" y="174" fill="#eef0ec" font-size="16">5.0 km loop</text>
+
+  <!-- prompt panel -->
+  <text x="80" y="150" fill="#1d1d1b" font-size="46" font-family="Georgia, serif" letter-spacing="-1">Prompt to route</text>
+  <text x="80" y="190" fill="#6f7268" font-size="19">Compare routes across models, side by side.</text>
+
+  <rect x="80" y="240" width="240" height="500" rx="14" fill="#ffffff"/>
+  <text x="104" y="284" fill="#9aa093" font-size="13" letter-spacing="2">PROMPT</text>
+  <text x="104" y="320" fill="#1d1d1b" font-size="17">“A flat 5K loop</text>
+  <text x="104" y="346" fill="#1d1d1b" font-size="17">near the park.”</text>
+  <line x1="104" y1="380" x2="296" y2="380" stroke="#ececec"/>
+  <g font-size="15" fill="#6f7268">
+    <circle cx="114" cy="424" r="5" fill="#96b59f"/><text x="132" y="429">GPT-5</text>
+    <circle cx="114" cy="464" r="5" fill="#7fa389"/><text x="132" y="469">Claude</text>
+    <circle cx="114" cy="504" r="5" fill="#6b9079"/><text x="132" y="509">Gemini</text>
+  </g>
+  <rect x="104" y="660" width="192" height="48" rx="24" fill="#1d1d1b"/>
+  <text x="200" y="690" fill="#eef0ec" font-size="16" text-anchor="middle">Generate ›</text>
+</svg>
