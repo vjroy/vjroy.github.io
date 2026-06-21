@@ -88,9 +88,7 @@ export const projects: Project[] = [
       { label: 'Models', value: 'LogReg + Random Forest' },
       { label: 'Stack', value: 'Python · scikit-learn · pandas · SMOTE' },
     ],
-    links: [
-      { label: 'GitHub', href: 'https://github.com/yazganschool/finalproject' },
-    ],
+    links: [{ label: 'GitHub', href: 'https://github.com/yazganschool/finalproject' }],
   },
   {
     index: '05',

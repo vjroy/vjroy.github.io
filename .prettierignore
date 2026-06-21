@@ -1,0 +1,7 @@
+dist/
+.astro/
+node_modules/
+package-lock.json
+public/terminal.js
+# prettier-plugin-astro can't parse the <script> nested in a {loading && (…)} expression
+src/layouts/Base.astro

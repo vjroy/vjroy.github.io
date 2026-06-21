@@ -2,6 +2,7 @@
 // Custom cursor: a small dot + a lagging ring. Disabled on touch / reduced-motion
 // (handled in app.ts). Elements with [data-cursor] / [data-cursor-card] grow it.
 ---
+
 <div class="cursor" data-cursor-el aria-hidden="true">
   <div class="cursor__ring" data-cursor-ring></div>
   <div class="cursor__dot" data-cursor-dot></div>
@@ -10,37 +11,51 @@
 <style>
   .cursor {
     position: fixed;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     z-index: 200;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s;
     mix-blend-mode: difference;
   }
-  :global(body.cursor-ready) .cursor { opacity: 1; }
+  :global(body.cursor-ready) .cursor {
+    opacity: 1;
+  }
 
   .cursor__dot,
   .cursor__ring {
     position: absolute;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     border-radius: 999px;
     transform: translate(-50%, -50%);
     background: #fff;
   }
-  .cursor__dot { width: 6px; height: 6px; }
+  .cursor__dot {
+    width: 6px;
+    height: 6px;
+  }
   .cursor__ring {
-    width: 38px; height: 38px;
+    width: 38px;
+    height: 38px;
     background: transparent;
     border: 1px solid #fff;
-    transition: width 0.3s var(--ease), height 0.3s var(--ease), background 0.3s var(--ease);
+    transition:
+      width 0.3s var(--ease),
+      height 0.3s var(--ease),
+      background 0.3s var(--ease);
   }
   :global(body.cursor-hover) .cursor__ring {
-    width: 64px; height: 64px;
+    width: 64px;
+    height: 64px;
     background: rgba(255, 255, 255, 0.15);
   }
 
   /* Native cursor stays visible on touch; JS removes .has-cursor when not applicable */
   :global(body.has-cursor),
   :global(body.has-cursor) a,
-  :global(body.has-cursor) button { cursor: none; }
+  :global(body.has-cursor) button {
+    cursor: none;
+  }
 </style>

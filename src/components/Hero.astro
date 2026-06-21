@@ -1,6 +1,7 @@
 ---
 // Big editorial hero. Headline split into lines for the loader reveal.
 ---
+
 <section class="hero" id="top">
   <div class="wrap hero__inner">
     <p class="eyebrow hero__eyebrow" data-hero-fade>Veejhay Roy — New Jersey, US</p>
@@ -16,9 +17,8 @@
 
     <div class="hero__foot">
       <p class="hero__lede" data-hero-fade>
-        CS @ Georgia Tech ’30. I build things at the intersection of AI, mobile,
-        and the outdoors — from an LLM spatial-reasoning benchmark to an iOS app
-        used by 100+ athletes.
+        CS @ Georgia Tech ’30. I build things at the intersection of AI, mobile, and the outdoors —
+        from an LLM spatial-reasoning benchmark to an iOS app used by 100+ athletes.
       </p>
       <a class="hero__scroll" href="#work" data-cursor data-hero-fade>
         <span>Selected work</span>
@@ -36,8 +36,12 @@
     padding-top: 6rem;
     padding-bottom: clamp(2rem, 1rem + 4vw, 4rem);
   }
-  .hero__inner { width: 100%; }
-  .hero__eyebrow { margin-bottom: clamp(1.5rem, 1rem + 3vw, 3rem); }
+  .hero__inner {
+    width: 100%;
+  }
+  .hero__eyebrow {
+    margin-bottom: clamp(1.5rem, 1rem + 3vw, 3rem);
+  }
 
   .hero__title {
     font-family: var(--font-serif);
@@ -46,9 +50,16 @@
     letter-spacing: -0.02em;
     font-weight: 300;
   }
-  .hero__line--amp .hero__line-in { font-style: italic; }
-  .hero__line { display: block; overflow: hidden; }
-  .hero__line-in { display: inline-block; }
+  .hero__line--amp .hero__line-in {
+    font-style: italic;
+  }
+  .hero__line {
+    display: block;
+    overflow: hidden;
+  }
+  .hero__line-in {
+    display: inline-block;
+  }
 
   .hero__line--amp {
     display: flex;
@@ -92,10 +103,14 @@
   .hero__arrow {
     display: inline-grid;
     place-items: center;
-    width: 2.2em; height: 2.2em;
+    width: 2.2em;
+    height: 2.2em;
     border: 1px solid var(--line);
     border-radius: 999px;
-    transition: transform 0.4s var(--ease), background 0.3s, color 0.3s;
+    transition:
+      transform 0.4s var(--ease),
+      background 0.3s,
+      color 0.3s;
   }
   .hero__scroll:hover .hero__arrow {
     transform: translateY(3px);
@@ -104,10 +119,17 @@
   }
 
   /* Loader-driven reveal initial state (JS clears these) */
-  :global(body[data-loading]) .hero__line-in { transform: translateY(110%); }
-  :global(body[data-loading]) [data-hero-fade] { opacity: 0; }
+  :global(body[data-loading]) .hero__line-in {
+    transform: translateY(110%);
+  }
+  :global(body[data-loading]) [data-hero-fade] {
+    opacity: 0;
+  }
 
   @media (max-width: 600px) {
-    .hero__foot { flex-direction: column; align-items: flex-start; }
+    .hero__foot {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 </style>

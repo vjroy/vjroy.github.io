@@ -1,6 +1,7 @@
 ---
 // Minimal fixed top nav. Anchor links are smooth-scrolled by Lenis (see app.ts).
 ---
+
 <header class="nav" data-nav>
   <div class="nav__inner wrap">
     <a class="nav__brand" href="#top" data-cursor>
@@ -28,7 +29,9 @@
     letter-spacing: -0.02em;
     font-size: var(--step-0);
   }
-  .nav__dot { color: #fff; }
+  .nav__dot {
+    color: #fff;
+  }
   .nav__links {
     display: flex;
     gap: clamp(1.1rem, 0.5rem + 2vw, 2.4rem);
@@ -43,12 +46,17 @@
   .nav__links a::after {
     content: '';
     position: absolute;
-    left: 0; bottom: 0;
-    width: 100%; height: 1px;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
     background: currentColor;
     transform: scaleX(0);
     transform-origin: right;
     transition: transform 0.4s var(--ease);
   }
-  .nav__links a:hover::after { transform: scaleX(1); transform-origin: left; }
+  .nav__links a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
 </style>

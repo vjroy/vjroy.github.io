@@ -2,17 +2,25 @@
 import { projects } from '../data/projects';
 const total = String(projects.length).padStart(2, '0');
 ---
+
 <section class="gallery" id="work" data-gallery>
   <p class="gallery__label" data-reveal>Selected work</p>
 
   <!-- 3D image wall -->
   <div class="gallery__stage" data-stage>
     <div class="gallery__track">
-      {projects.map((p, i) => (
-        <figure class="gslide" data-slide data-i={i} aria-hidden={i === 0 ? 'false' : 'true'}>
-          <img src={p.image} alt={`${p.title} — ${p.kind}`} draggable="false" loading={i < 2 ? 'eager' : 'lazy'} />
-        </figure>
-      ))}
+      {
+        projects.map((p, i) => (
+          <figure class="gslide" data-slide data-i={i} aria-hidden={i === 0 ? 'false' : 'true'}>
+            <img
+              src={p.image}
+              alt={`${p.title} — ${p.kind}`}
+              draggable="false"
+              loading={i < 2 ? 'eager' : 'lazy'}
+            />
+          </figure>
+        ))
+      }
     </div>
 
     <button class="gallery__nav gallery__nav--prev" data-prev aria-label="Previous project">
@@ -25,24 +33,27 @@ const total = String(projects.length).padStart(2, '0');
 
   <!-- Meta panels (one per project; JS toggles .is-active) -->
   <div class="gallery__meta">
-    {projects.map((p, i) => (
-      <div class={`gmeta ${i === 0 ? 'is-active' : ''}`} data-meta data-i={i}>
-        <p class="gmeta__count">
-          <span class="gmeta__num">{p.index}</span>
-          <span class="gmeta__sep">/</span>
-          <span class="gmeta__total">{total}</span>
-        </p>
-        <h2 class="gmeta__title">{p.title}</h2>
-        <p class="gmeta__tagline">{p.tagline}</p>
-        <div class="gmeta__links">
-          {p.links.map((l) => (
-            <a href={l.href} target="_blank" rel="noopener" data-cursor>
-              {l.label}<span aria-hidden="true"> ↗</span>
-            </a>
-          ))}
+    {
+      projects.map((p, i) => (
+        <div class={`gmeta ${i === 0 ? 'is-active' : ''}`} data-meta data-i={i}>
+          <p class="gmeta__count">
+            <span class="gmeta__num">{p.index}</span>
+            <span class="gmeta__sep">/</span>
+            <span class="gmeta__total">{total}</span>
+          </p>
+          <h2 class="gmeta__title">{p.title}</h2>
+          <p class="gmeta__tagline">{p.tagline}</p>
+          <div class="gmeta__links">
+            {p.links.map((l) => (
+              <a href={l.href} target="_blank" rel="noopener" data-cursor>
+                {l.label}
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            ))}
+          </div>
         </div>
-      </div>
-    ))}
+      ))
+    }
   </div>
 </section>
 
@@ -82,7 +93,9 @@ const total = String(projects.length).padStart(2, '0');
     margin: 0;
     transform: translate(-50%, -50%);
     transform-origin: center center;
-    transition: transform 0.7s var(--ease), opacity 0.7s var(--ease);
+    transition:
+      transform 0.7s var(--ease),
+      opacity 0.7s var(--ease);
     will-change: transform, opacity;
     cursor: pointer;
     border-radius: 10px;
@@ -90,8 +103,14 @@ const total = String(projects.length).padStart(2, '0');
     box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.45);
     background: var(--bg-2);
   }
-  .gslide img { width: 100%; height: 100%; object-fit: cover; }
-  .gslide[data-active] { cursor: pointer; }
+  .gslide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .gslide[data-active] {
+    cursor: pointer;
+  }
 
   /* ── Side nav ── */
   .gallery__nav {
@@ -104,13 +123,25 @@ const total = String(projects.length).padStart(2, '0');
     text-transform: uppercase;
     color: var(--ink-soft);
     padding: 1rem;
-    transition: color 0.3s, transform 0.3s var(--ease);
+    transition:
+      color 0.3s,
+      transform 0.3s var(--ease);
   }
-  .gallery__nav:hover { color: var(--ink); }
-  .gallery__nav--prev { left: clamp(0.5rem, 2vw, 3rem); }
-  .gallery__nav--next { right: clamp(0.5rem, 2vw, 3rem); }
-  .gallery__nav--prev:hover { transform: translateY(-50%) translateX(-4px); }
-  .gallery__nav--next:hover { transform: translateY(-50%) translateX(4px); }
+  .gallery__nav:hover {
+    color: var(--ink);
+  }
+  .gallery__nav--prev {
+    left: clamp(0.5rem, 2vw, 3rem);
+  }
+  .gallery__nav--next {
+    right: clamp(0.5rem, 2vw, 3rem);
+  }
+  .gallery__nav--prev:hover {
+    transform: translateY(-50%) translateX(-4px);
+  }
+  .gallery__nav--next:hover {
+    transform: translateY(-50%) translateX(4px);
+  }
 
   /* ── Meta ── */
   .gallery__meta {
@@ -127,10 +158,16 @@ const total = String(projects.length).padStart(2, '0');
     align-items: center;
     opacity: 0;
     transform: translateY(14px);
-    transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+    transition:
+      opacity 0.5s var(--ease),
+      transform 0.5s var(--ease);
     pointer-events: none;
   }
-  .gmeta.is-active { opacity: 1; transform: none; pointer-events: auto; }
+  .gmeta.is-active {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
 
   .gmeta__count {
     font-size: var(--step--1);
@@ -138,8 +175,12 @@ const total = String(projects.length).padStart(2, '0');
     color: var(--ink-faint);
     font-variant-numeric: tabular-nums;
   }
-  .gmeta__num { color: var(--ink); }
-  .gmeta__sep { margin-inline: 0.4em; }
+  .gmeta__num {
+    color: var(--ink);
+  }
+  .gmeta__sep {
+    margin-inline: 0.4em;
+  }
   .gmeta__title {
     font-family: var(--font-serif);
     font-weight: 300;
@@ -169,12 +210,24 @@ const total = String(projects.length).padStart(2, '0');
     padding-bottom: 3px;
     transition: opacity 0.3s;
   }
-  .gmeta__links a:hover { opacity: 0.55; }
+  .gmeta__links a:hover {
+    opacity: 0.55;
+  }
 
   @media (max-width: 600px) {
-    .gallery__nav span { display: none; }
-    .gallery__nav { padding: 1.4rem 0.6rem; }
-    .gallery__nav--prev::after { content: '‹'; font-size: 1.8rem; }
-    .gallery__nav--next::after { content: '›'; font-size: 1.8rem; }
+    .gallery__nav span {
+      display: none;
+    }
+    .gallery__nav {
+      padding: 1.4rem 0.6rem;
+    }
+    .gallery__nav--prev::after {
+      content: '‹';
+      font-size: 1.8rem;
+    }
+    .gallery__nav--next::after {
+      content: '›';
+      font-size: 1.8rem;
+    }
   }
 </style>

@@ -121,8 +121,10 @@ function initCursor() {
   }
 
   document.body.classList.add('has-cursor');
-  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-  let rx = mx, ry = my;
+  let mx = window.innerWidth / 2,
+    my = window.innerHeight / 2;
+  let rx = mx,
+    ry = my;
 
   window.addEventListener('mousemove', (e) => {
     mx = e.clientX;
@@ -174,8 +176,7 @@ function initGallery() {
       const z = -abs * DEPTH;
       const scale = pos === 0 ? 1 : 0.82;
       const opacity = abs > 2 ? 0 : pos === 0 ? 1 : 0.55;
-      slide.style.transform =
-        `translate(-50%, -50%) translateX(${x}px) translateZ(${z}px) rotateY(${ry}deg) scale(${scale})`;
+      slide.style.transform = `translate(-50%, -50%) translateX(${x}px) translateZ(${z}px) rotateY(${ry}deg) scale(${scale})`;
       slide.style.opacity = String(opacity);
       slide.style.zIndex = String(100 - abs);
       slide.style.pointerEvents = abs > 2 ? 'none' : 'auto';

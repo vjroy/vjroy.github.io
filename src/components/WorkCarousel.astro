@@ -1,52 +1,53 @@
 ---
 import { projects } from '../data/projects';
 ---
+
 <section class="work section" id="work">
   <div class="wrap work__head">
     <h2 class="work__title" data-reveal>Selected work</h2>
     <p class="work__hint" data-reveal>
-      <span aria-hidden="true">←</span>&nbsp; Drag sideways to explore &nbsp;<span aria-hidden="true">→</span>
+      <span aria-hidden="true">←</span>&nbsp; Drag sideways to explore &nbsp;<span
+        aria-hidden="true">→</span
+      >
     </p>
   </div>
 
   <div class="embla" data-embla>
     <div class="embla__viewport" data-embla-viewport>
       <div class="embla__container">
-        {projects.map((p) => (
-          <article class="card embla__slide" data-cursor-card>
-            <div class="card__top">
-              <span class="card__index">{p.index}</span>
-              <span class="card__kind">{p.kind} · {p.year}</span>
-            </div>
+        {
+          projects.map((p) => (
+            <article class="card embla__slide" data-cursor-card>
+              <div class="card__top">
+                <span class="card__index">{p.index}</span>
+                <span class="card__kind">
+                  {p.kind} · {p.year}
+                </span>
+              </div>
 
-            <h3 class="card__title">{p.title}</h3>
-            <p class="card__summary">{p.summary}</p>
+              <h3 class="card__title">{p.title}</h3>
+              <p class="card__summary">{p.summary}</p>
 
-            <dl class="card__meta">
-              {p.meta.map((m) => (
-                <div class="card__meta-row">
-                  <dt>{m.label}</dt>
-                  <dd>{m.value}</dd>
-                </div>
-              ))}
-            </dl>
+              <dl class="card__meta">
+                {p.meta.map((m) => (
+                  <div class="card__meta-row">
+                    <dt>{m.label}</dt>
+                    <dd>{m.value}</dd>
+                  </div>
+                ))}
+              </dl>
 
-            <div class="card__links">
-              {p.links.map((l) => (
-                <a
-                  class="card__link"
-                  href={l.href}
-                  target="_blank"
-                  rel="noopener"
-                  data-cursor
-                >
-                  {l.label}
-                  <span aria-hidden="true">↗</span>
-                </a>
-              ))}
-            </div>
-          </article>
-        ))}
+              <div class="card__links">
+                {p.links.map((l) => (
+                  <a class="card__link" href={l.href} target="_blank" rel="noopener" data-cursor>
+                    {l.label}
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                ))}
+              </div>
+            </article>
+          ))
+        }
       </div>
     </div>
   </div>
@@ -72,9 +73,16 @@ import { projects } from '../data/projects';
     color: var(--ink-faint);
   }
 
-  .embla { overflow: hidden; }
-  .embla__viewport { overflow: hidden; cursor: grab; }
-  .embla__viewport:active { cursor: grabbing; }
+  .embla {
+    overflow: hidden;
+  }
+  .embla__viewport {
+    overflow: hidden;
+    cursor: grab;
+  }
+  .embla__viewport:active {
+    cursor: grabbing;
+  }
   .embla__container {
     display: flex;
     gap: clamp(1rem, 0.5rem + 2vw, 2rem);
@@ -92,9 +100,13 @@ import { projects } from '../data/projects';
     padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
     display: flex;
     flex-direction: column;
-    transition: transform 0.5s var(--ease), border-color 0.4s;
+    transition:
+      transform 0.5s var(--ease),
+      border-color 0.4s;
   }
-  .card:hover { border-color: var(--ink); }
+  .card:hover {
+    border-color: var(--ink);
+  }
 
   .card__top {
     display: flex;
@@ -108,7 +120,10 @@ import { projects } from '../data/projects';
     font-weight: 600;
     color: var(--ink);
   }
-  .card__kind { letter-spacing: 0.04em; text-transform: uppercase; }
+  .card__kind {
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
 
   .card__title {
     margin-top: auto;
@@ -137,8 +152,14 @@ import { projects } from '../data/projects';
     gap: 1rem;
     font-size: var(--step--1);
   }
-  .card__meta-row dt { color: var(--ink-faint); }
-  .card__meta-row dd { color: var(--ink); font-weight: 500; text-align: right; }
+  .card__meta-row dt {
+    color: var(--ink-faint);
+  }
+  .card__meta-row dd {
+    color: var(--ink);
+    font-weight: 500;
+    text-align: right;
+  }
 
   .card__links {
     margin-top: 1.5rem;
@@ -156,8 +177,12 @@ import { projects } from '../data/projects';
     padding-bottom: 2px;
     transition: opacity 0.3s;
   }
-  .card__link:hover { opacity: 0.6; }
+  .card__link:hover {
+    opacity: 0.6;
+  }
 
   /* Disable native drag-select on text while dragging */
-  .embla__viewport.is-dragging .card { user-select: none; }
+  .embla__viewport.is-dragging .card {
+    user-select: none;
+  }
 </style>

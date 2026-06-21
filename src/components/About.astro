@@ -5,53 +5,59 @@ const skills = [
   { group: 'Tools', items: ['Git', 'GitHub', 'Xcode', 'VS Code'] },
 ];
 ---
+
 <section class="about section" id="about">
   <div class="wrap about__inner">
     <p class="eyebrow" data-reveal>About</p>
 
     <div class="about__lead">
       <p class="about__statement" data-reveal>
-        I’m a computer science student at Georgia Tech who likes building things
-        end-to-end — research, software, and the occasional fast 5K.
+        I’m a computer science student at Georgia Tech who likes building things end-to-end —
+        research, software, and the occasional fast 5K.
       </p>
     </div>
 
     <div class="about__body">
       <div class="about__col" data-reveal>
         <p>
-          Right now I’m researching how well large language models reason about
-          physical space. That turned into <strong>RouteEval</strong>, a benchmark
-          of 10,000+ running-route evaluations across 13 models, with a paper
-          submitted to ACL ARR 2025.
+          Right now I’m researching how well large language models reason about physical space. That
+          turned into <strong>RouteEval</strong>, a benchmark of 10,000+ running-route evaluations
+          across 13 models, with a paper submitted to ACL ARR 2025.
         </p>
         <p>
-          I also ship: <strong>SplitDecision</strong>, a coach-facing iOS split
-          tracker used by 100+ athletes; a Columbia summer machine-learning
-          project on fraud detection; and a HarvardX data-science certificate.
+          I also ship: <strong>SplitDecision</strong>, a coach-facing iOS split tracker used by 100+
+          athletes; a Columbia summer machine-learning project on fraud detection; and a HarvardX
+          data-science certificate.
         </p>
         <p>
-          Outside of code, I run — cross-country and track, 400m through 5K, with
-          all-county honors. Running taught me most of what I know about
-          discipline, patience, and showing up.
+          Outside of code, I run — cross-country and track, 400m through 5K, with all-county honors.
+          Running taught me most of what I know about discipline, patience, and showing up.
         </p>
       </div>
 
       <div class="about__skills" data-reveal>
-        {skills.map((s) => (
-          <div class="about__skill-group">
-            <h3 class="about__skill-label">{s.group}</h3>
-            <ul class="about__skill-list">
-              {s.items.map((i) => <li>{i}</li>)}
-            </ul>
-          </div>
-        ))}
+        {
+          skills.map((s) => (
+            <div class="about__skill-group">
+              <h3 class="about__skill-label">{s.group}</h3>
+              <ul class="about__skill-list">
+                {s.items.map((i) => (
+                  <li>{i}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
       </div>
     </div>
   </div>
 </section>
 
 <style>
-  .about__inner { display: grid; gap: clamp(2rem, 1rem + 4vw, 4rem); }
+  .about__inner {
+    display: grid;
+    gap: clamp(2rem, 1rem + 4vw, 4rem);
+  }
   .about__statement {
     font-family: var(--font-serif);
     font-size: var(--step-3);
@@ -73,9 +79,16 @@ const skills = [
     line-height: 1.45;
     color: var(--ink-soft);
   }
-  .about__col strong { color: var(--ink); font-weight: 600; }
+  .about__col strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
 
-  .about__skills { display: grid; gap: 1.75rem; align-content: start; }
+  .about__skills {
+    display: grid;
+    gap: 1.75rem;
+    align-content: start;
+  }
   .about__skill-label {
     font-size: var(--step--1);
     text-transform: uppercase;
@@ -97,6 +110,8 @@ const skills = [
   }
 
   @media (max-width: 800px) {
-    .about__body { grid-template-columns: 1fr; }
+    .about__body {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

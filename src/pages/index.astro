@@ -8,6 +8,7 @@ import Gallery from '../components/Gallery.astro';
 import About from '../components/About.astro';
 import Footer from '../components/Footer.astro';
 ---
+
 <Base loading={true}>
   <Loader />
   <Cursor />
@@ -26,5 +27,8 @@ import Footer from '../components/Footer.astro';
 
 <style is:global>
   /* Lock scroll until the loader finishes (unless reduced motion) */
-  body[data-loading] { overflow: hidden; height: 100svh; }
+  body[data-loading] {
+    overflow: hidden;
+    height: 100svh;
+  }
 </style>
