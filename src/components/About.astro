@@ -11,7 +11,7 @@ const skills = [
     <p class="eyebrow" data-reveal>About</p>
 
     <div class="about__lead">
-      <p class="about__statement" data-reveal>
+      <p class="about__statement" data-reveal="left">
         I’m a computer science student at Georgia Tech who likes building things end-to-end —
         research, software, and the occasional fast 5K.
       </p>
@@ -35,7 +35,7 @@ const skills = [
         </p>
       </div>
 
-      <div class="about__skills" data-reveal>
+      <div class="about__skills" data-reveal="right">
         {
           skills.map((s) => (
             <div class="about__skill-group">

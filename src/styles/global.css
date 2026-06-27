@@ -16,10 +16,11 @@
   --line: #b0a89d; /* hairline borders */
   --accent: #96b59f; /* sage accent (used sparingly) */
 
-  --font-sans:
-    'General Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
+  /* Editorial serif pairing — Fraunces (display) + Newsreader (body).
+     --font-sans is kept only as a fallback stack for tiny UI bits (cursor). */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-serif: 'Fraunces', 'Editorial New', Georgia, 'Times New Roman', serif;
+  --font-body: 'Newsreader', 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
 
   /* Fluid type scale */
@@ -74,7 +75,7 @@ html.lenis body {
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   font-size: var(--step-0);
   line-height: 1.5;
   font-weight: 400;
@@ -147,6 +148,7 @@ ul {
 h1,
 h2,
 h3 {
+  font-family: var(--font-serif);
   font-weight: 600;
   line-height: 0.98;
   letter-spacing: -0.02em;
@@ -172,18 +174,72 @@ h3 {
   color: var(--ink-faint);
 }
 
-/* ── Scroll-reveal base state (JS adds .is-in) ─────────── */
+/* ── Scroll-reveal system (JS toggles .is-in on enter/exit) ──────
+   Each element animates from a dramatic hidden state to nothing. The
+   default is a blurred rise; data-reveal="<variant>" picks a bigger
+   entrance. The .is-in reset is defined LAST so it wins on specificity
+   ties against the variant rules below. */
 [data-reveal] {
   opacity: 0;
-  transform: translateY(28px);
+  transform: translateY(64px) scale(0.94);
+  filter: blur(8px);
   transition:
-    opacity 0.9s var(--ease),
-    transform 0.9s var(--ease);
-  will-change: opacity, transform;
+    opacity 0.85s var(--ease),
+    transform 1s var(--ease),
+    filter 0.85s var(--ease);
+  transition-delay: var(--reveal-delay, 0s);
+  will-change: opacity, transform, filter;
 }
+
+/* Zoom in from tiny + heavy blur — for big display headings. */
+[data-reveal='zoom'] {
+  transform: scale(0.35);
+  filter: blur(26px);
+}
+/* Flip up from flat like a board hinged at its base. */
+[data-reveal='flip'] {
+  transform: perspective(1100px) rotateX(-82deg) translateY(40px);
+  transform-origin: center bottom;
+  filter: blur(5px);
+}
+/* Swing in from the sides. */
+[data-reveal='left'] {
+  transform: translateX(-160px) rotate(-8deg);
+  filter: blur(5px);
+}
+[data-reveal='right'] {
+  transform: translateX(160px) rotate(8deg);
+  filter: blur(5px);
+}
+/* Big drop. */
+[data-reveal='rise'] {
+  transform: translateY(160px) scale(0.85);
+  filter: blur(6px);
+}
+
 [data-reveal].is-in {
   opacity: 1;
   transform: none;
+  filter: none;
+}
+
+/* ── Anchor-jump "warp" punch (JS adds .is-warp briefly) ─── */
+body.is-warp main {
+  animation: warp 0.7s var(--ease);
+}
+@keyframes warp {
+  0% {
+    transform: none;
+    filter: none;
+  }
+  35% {
+    transform: scale(0.965);
+    filter: blur(3px) saturate(1.2);
+  }
+  100% {
+    transform: none;
+    filter: none;
+  }
 }
 
 /* ── Accessibility ─────────────────────────────────────── */
@@ -226,5 +282,7 @@ h3 {
   [data-reveal] {
     opacity: 1;
     transform: none;
+    filter: none;
+    transition-delay: 0s !important;
   }
 }

@@ -27,7 +27,7 @@ const stats: Stat[] = [
     <dl class="stats__grid" data-stats>
       {
         stats.map((s) => (
-          <div class="stat" data-reveal>
+          <div class="stat" data-reveal="rise">
             <dd
               class="stat__value"
               data-stat-value
@@ -136,6 +136,16 @@ const stats: Stat[] = [
     gap: 0.6rem;
     border-top: 1px solid var(--line);
     padding-top: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  }
+  /* Cascade the reveal across the row. */
+  .stat:nth-child(2) {
+    --reveal-delay: 0.08s;
+  }
+  .stat:nth-child(3) {
+    --reveal-delay: 0.16s;
+  }
+  .stat:nth-child(4) {
+    --reveal-delay: 0.24s;
   }
 
   .stat__value {

@@ -35,10 +35,22 @@ function initAnchors() {
       const target = document.querySelector(id);
       if (!target) return;
       e.preventDefault();
+      if (!reduceMotion) triggerWarp();
       if (lenis) lenis.scrollTo(target as HTMLElement, { offset: 0 });
       else target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
     });
   });
+}
+
+// Brief full-page "warp" punch on a section jump (scale dip + blur flash).
+let warpTimer: number | undefined;
+function triggerWarp() {
+  document.body.classList.remove('is-warp');
+  // Force a reflow so re-adding the class restarts the animation.
+  void document.body.offsetWidth;
+  document.body.classList.add('is-warp');
+  window.clearTimeout(warpTimer);
+  warpTimer = window.setTimeout(() => document.body.classList.remove('is-warp'), 750);
 }
 
 /* ── 2. Loader → hero reveal ───────────────────────────────── */
@@ -96,13 +108,12 @@ function initReveal() {
     els.forEach((el) => el.classList.add('is-in'));
     return;
   }
+  // Toggle (don't unobserve): elements re-hide when they leave and replay the
+  // entrance every time they scroll back into view — deliberately intense.
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-in');
-          io.unobserve(entry.target);
-        }
+        entry.target.classList.toggle('is-in', entry.isIntersecting);
       });
     },
     { rootMargin: '0px 0px -12% 0px', threshold: 0.1 },
@@ -288,6 +299,66 @@ function initGallery() {
   layout();
 }
 
+/* ── 6. Scroll-driven FX: velocity skew + image parallax ───── */
+function initScrollFX() {
+  if (reduceMotion) return;
+
+  // Skew every top-level block by the scroll velocity, easing back to flat
+  // when motion stops — a kinetic "drag" as you move between sections.
+  const skewTargets = Array.from(
+    document.querySelectorAll<HTMLElement>('main > section, main > .marquee'),
+  );
+  // Cover images that drift within their frames as they cross the viewport.
+  const parallaxImgs = Array.from(document.querySelectorAll<HTMLElement>('[data-parallax-img]'));
+  if (!skewTargets.length && !parallaxImgs.length) return;
+
+  skewTargets.forEach((el) => {
+    el.style.willChange = 'transform';
+    el.style.transformOrigin = 'center center';
+  });
+
+  const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
+
+  let skew = 0;
+  const MAX_SKEW = 6; // degrees — cranked for a hard kinetic drag
+
+  const loop = () => {
+    const vh = window.innerHeight || 1;
+
+    // Velocity-driven skew (Lenis exposes per-frame velocity in px).
+    const v = lenis ? lenis.velocity : 0;
+    const skTarget = clamp(v * 0.09, -MAX_SKEW, MAX_SKEW);
+    skew += (skTarget - skew) * 0.12;
+    if (Math.abs(skew) < 0.001) skew = 0;
+    const sk = skew.toFixed(3);
+
+    // Batch all layout reads first, then all writes — avoids per-element thrash.
+    const sRects = skewTargets.map((el) => el.getBoundingClientRect());
+    const iData = parallaxImgs.map((img) => {
+      const r = img.getBoundingClientRect();
+      return clamp((r.top + r.height / 2 - vh / 2) / vh, -1, 1);
+    });
+
+    // Each block tilts in 3D + recedes the further its middle sits from the
+    // viewport centre — flat (in focus) when centred, dramatic at the edges.
+    skewTargets.forEach((el, i) => {
+      const r = sRects[i];
+      const d = clamp((r.top + r.height / 2 - vh / 2) / vh, -1.1, 1.1);
+      const rx = (d * 9).toFixed(2); // tilt toward/away from the viewer
+      const sc = (1 - Math.abs(d) * 0.08).toFixed(3); // recede at the edges
+      el.style.transform = `perspective(1500px) skewY(${sk}deg) rotateX(${rx}deg) scale(${sc})`;
+    });
+
+    // Parallax: drift each cover within its frame by its viewport position.
+    parallaxImgs.forEach((img, i) => {
+      img.style.setProperty('--py', `${(iData[i] * -22).toFixed(1)}px`);
+    });
+
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
 /* ── Boot ──────────────────────────────────────────────────── */
 function boot() {
   initSmoothScroll();
@@ -295,6 +366,7 @@ function boot() {
   initReveal();
   initCursor();
   initGallery();
+  initScrollFX();
   initLoader();
 }
 

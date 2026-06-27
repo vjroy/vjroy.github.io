@@ -43,18 +43,18 @@ const ogImage = `${site}/pic2.jpg`;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <!-- General Sans (body/UI) — closest free match to PP Neue Montreal -->
-    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap"
-    />
-    <!-- Fraunces (editorial serif display) — closest free match to Editorial New -->
+    <!-- Editorial serif pairing: Fraunces (display) + Newsreader (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Fraunces — high-contrast display serif for headlines -->
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,500&display=swap"
+    />
+    <!-- Newsreader — readable old-style serif for body/UI text -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap"
     />
     <!-- Mono only used by the /terminal easter egg -->
     {bare && (

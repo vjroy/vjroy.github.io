@@ -10,13 +10,20 @@ const items = [
   'LLM RESEARCH',
   "GEORGIA TECH '30",
 ];
+
+// A single group must be at least as wide as the viewport, or the -50% loop
+// leaves an empty gap on wide screens. Repeat the base list so one group
+// comfortably overfills even ultrawide displays; the track then holds two
+// identical groups and the translateX(-50%) wrap stays seamless.
+const REPEAT = 3;
+const groupItems = Array.from({ length: REPEAT }, () => items).flat();
 ---
 
 <div class="marquee" role="presentation">
   <div class="marquee__track">
     <ul class="marquee__group">
       {
-        items.map((item) => (
+        groupItems.map((item) => (
           <li class="marquee__item">
             {item}
             <span class="marquee__dot" aria-hidden="true" />
@@ -26,7 +33,7 @@ const items = [
     </ul>
     <ul class="marquee__group" aria-hidden="true">
       {
-        items.map((item) => (
+        groupItems.map((item) => (
           <li class="marquee__item">
             {item}
             <span class="marquee__dot" aria-hidden="true" />

@@ -17,6 +17,8 @@ export interface Project {
   /** Key facts shown as a small meta list. */
   meta: { label: string; value: string }[];
   links: ProjectLink[];
+  /** Flags the entry with a "NEW" badge in the editorial work index. */
+  isNew?: boolean;
 }
 
 export const projects: Project[] = [
@@ -25,6 +27,7 @@ export const projects: Project[] = [
     title: 'RouteEval',
     kind: 'LLM Research',
     year: '2025',
+    isNew: true,
     image: '/projects/routeeval.svg',
     tagline: 'A benchmark for how well LLMs reason about physical space.',
     summary:
@@ -45,6 +48,7 @@ export const projects: Project[] = [
     title: 'Routecraft',
     kind: 'Web App',
     year: '2025',
+    isNew: true,
     image: '/projects/routecraft.svg',
     tagline: 'Turn a prompt into a running route — and compare models.',
     summary:

@@ -1,0 +1,95 @@
+---
+// Editorial "All Work" index — a centered display heading flanked by project
+// entries, in the paper-portfolio style. Data comes from src/data/projects.ts.
+// Source order is entry · heading · entry · rest, so on a 3-column grid the
+// heading lands centered in the top row between the first two projects.
+import { projects } from '../data/projects';
+import WorkEntry from './WorkEntry.astro';
+
+const [first, ...rest] = projects;
+---
+
+<section class="allwork section" id="work">
+  <div class="wrap">
+    <hr class="allwork__rule" />
+
+    <div class="allwork__grid">
+      <!-- top-left entry -->
+      <WorkEntry project={first} eager={true} />
+
+      <!-- centered heading sits in the middle of the first row -->
+      <header class="aw__head" data-reveal="zoom">
+        <h2 class="aw__title">All Work!</h2>
+        <p class="aw__sub">Handpicked highlights —<br /> spanning the last few years.</p>
+        <p class="aw__hint">Click any project to dive in.</p>
+      </header>
+
+      {rest.map((p, i) => <WorkEntry project={p} eager={i < 1} delay={0.06 * (i + 1)} />)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .allwork {
+    padding-block: clamp(4rem, 2rem + 7vw, 8rem);
+  }
+  .allwork__rule {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin-bottom: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+  }
+
+  .allwork__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(2rem, 1rem + 4vw, 4.5rem) clamp(1.5rem, 1rem + 2vw, 3.5rem);
+    align-items: start;
+  }
+
+  /* ── Centered heading block ── */
+  .aw__head {
+    align-self: center;
+    text-align: center;
+    padding-inline: clamp(0.5rem, 0.5vw, 1.5rem);
+  }
+  .aw__title {
+    font-family: var(--font-serif);
+    font-weight: 900;
+    font-size: var(--step-3);
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+  .aw__sub {
+    font-family: var(--font-serif);
+    font-size: var(--step-2);
+    line-height: 1.1;
+    font-weight: 400;
+    margin-top: 1rem;
+    color: var(--ink);
+  }
+  .aw__hint {
+    margin-top: 1.5rem;
+    font-size: var(--step--1);
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .allwork__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .aw__head {
+      grid-column: 1 / -1;
+      order: -1;
+      align-self: auto;
+      margin-bottom: 1rem;
+    }
+  }
+  @media (max-width: 560px) {
+    .allwork__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,136 @@
+---
+// A single project entry in the editorial "All Work" index: framed cover image,
+// uppercase serif title (with an optional NEW badge), blurb, and source links.
+import type { Project } from '../data/projects';
+
+interface Props {
+  project: Project;
+  /** Eager-load the cover image (use for above-the-fold entries). */
+  eager?: boolean;
+  /** Stagger delay (seconds) for the reveal cascade. */
+  delay?: number;
+}
+
+const { project, eager = false, delay = 0 } = Astro.props;
+const primary = project.links[0];
+---
+
+<article class="we" data-reveal="flip" style={`--reveal-delay:${delay}s`}>
+  <a class="we__media" href={primary.href} target="_blank" rel="noopener" data-cursor>
+    <img
+      src={project.image}
+      alt={`${project.title} — ${project.kind}`}
+      loading={eager ? 'eager' : 'lazy'}
+      draggable="false"
+      data-parallax-img
+    />
+  </a>
+
+  <h3 class="we__title">
+    <a href={primary.href} target="_blank" rel="noopener" data-cursor>{project.title}</a>
+    {project.isNew && <span class="we__badge">New</span>}
+  </h3>
+
+  <p class="we__desc">{project.summary}</p>
+
+  <div class="we__links">
+    {
+      project.links.map((l) => (
+        <a href={l.href} target="_blank" rel="noopener" data-cursor>
+          {l.label}
+          <span aria-hidden="true">↗</span>
+        </a>
+      ))
+    }
+  </div>
+</article>
+
+<style>
+  .we {
+    display: flex;
+    flex-direction: column;
+  }
+  .we__media {
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    aspect-ratio: 4 / 3;
+    background: var(--bg-2);
+  }
+  .we__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* scaled up so the parallax drift (--py, set per-frame in app.ts) never
+       exposes an edge inside the overflow-hidden frame */
+    transform: translateY(var(--py, 0px)) scale(1.16);
+    filter: grayscale(0.5) contrast(0.97);
+    transition: filter 0.6s var(--ease);
+    will-change: transform;
+  }
+  .we:hover .we__media img {
+    filter: grayscale(0) contrast(1);
+  }
+
+  .we__title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.65rem;
+    margin-top: 1.1rem;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: var(--step-1);
+    letter-spacing: 0.005em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .we__title a {
+    transition: opacity 0.3s;
+  }
+  .we:hover .we__title a {
+    opacity: 0.62;
+  }
+  .we__badge {
+    display: inline-block;
+    font-family: var(--font-serif);
+    font-size: 0.62em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fff;
+    background: #d6532a;
+    padding: 0.15em 0.5em;
+    border-radius: 3px;
+    transform: translateY(-0.08em);
+  }
+
+  .we__desc {
+    margin-top: 0.75rem;
+    color: var(--ink-soft);
+    font-size: var(--step-0);
+    line-height: 1.45;
+    max-width: 46ch;
+  }
+
+  .we__links {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .we__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: var(--step--1);
+    font-style: italic;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2px;
+    transition: opacity 0.3s;
+  }
+  .we__links a:hover {
+    opacity: 0.6;
+  }
+</style>
