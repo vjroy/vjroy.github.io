@@ -1,0 +1,359 @@
+---
+import Base from '../../layouts/Base.astro';
+import Cursor from '../../components/Cursor.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+
+const repo = 'https://github.com/ElieBen-Shlomo/encode-hackathon-condensed';
+
+// Straight from results.json in the submitted repo.
+const scores = [
+  { label: 'Pass rate', value: '88.25%' },
+  { label: 'Cell accuracy', value: '82.31%' },
+  { label: 'Cell-level tasks', value: '88.0%' },
+  { label: 'Sheet-level tasks', value: '88.8%' },
+];
+---
+
+<Base
+  title="First place, 400 spreadsheets — Veejhay Roy"
+  description="How our team won the YLookup × Encode AI Hackathon with an agent that edits real workbooks, and the measurements that shaped it."
+>
+  <Cursor />
+  <Nav brandHref="/" />
+
+  <main id="main">
+    <article class="post">
+      <div class="wrap">
+        <header class="post__head">
+          <p class="eyebrow" data-reveal>
+            Writing — <time datetime="2026-09-06">September 2026</time>
+          </p>
+
+          <h1 class="post__title" data-reveal>First place, 400 spreadsheets</h1>
+
+          <p class="post__dek" data-reveal>
+            How our team won the YLookup × Encode AI Hackathon with an agent that edits real
+            workbooks — and why we spent the first hours measuring how the model <em>reads</em> a spreadsheet
+            before writing anything that changes one.
+          </p>
+
+          <ul class="post__meta" data-reveal>
+            <li><span>Event</span>YLookup × Encode AI Hackathon, Shoreditch</li>
+            <li><span>Team</span>Gherkers — four people, 24 hours</li>
+            <li><span>Result</span>1st place · 88.25% on SpreadsheetBench</li>
+          </ul>
+
+          <div class="post__links" data-reveal>
+            <a href={repo} target="_blank" rel="noopener" data-cursor>
+              The submitted repo<span aria-hidden="true">↗</span>
+            </a>
+            <a href="/#work" data-cursor>Back to work<span aria-hidden="true">↗</span></a>
+          </div>
+        </header>
+
+        <div class="post__body">
+          <h2>The task</h2>
+          <p>
+            SpreadsheetBench is 400 real spreadsheet problems scraped from Excel forums — the kind
+            of thing a person actually got stuck on and posted about. You get a workbook and an
+            instruction in plain English. You return the workbook with the answer filled in. The
+            evaluator grades only the answer cells, and it grades them all-or-nothing: one wrong
+            cell and the whole task scores zero.
+          </p>
+          <p>
+            The judging made it harder than a normal leaderboard. They ran our pipeline themselves,
+            in our own Docker container, on tasks we had never seen. Model IDs fixed in code,
+            temperature 0, keys from the environment, nothing else mounted. Anything that looked
+            like a golden value reaching a prompt was an instant disqualification. So there was no
+            way to quietly overfit the 400 — whatever we built had to actually generalise.
+          </p>
+
+          <h2>Why an agent, and not one big answer</h2>
+          <p>
+            The obvious pipeline is one model call per task: show it the sheet, ask for the final
+            values, write them in. That falls apart the moment a task is sheet-level — filter these
+            rows, sort by this column, carry the formatting across, fill down three thousand cells.
+            Asking a model to emit every one of those values as JSON either runs out of room or
+            comes back malformed.
+          </p>
+          <p>
+            So we stopped asking for values and started asking for <em>operations</em>. Our
+            entrypoint gives the model an instruction, a compact summary of the workbook, the target
+            answer range, and the source cells that matter. Then it works in a loop of up to twenty
+            turns, picking one structured action at a time: inspect the data, run Python against the
+            workbook with openpyxl, run a shell command, or recalculate formulas through
+            LibreOffice. After every edit the harness hands back the current contents of the answer
+            cells. The model gets to look at its own work and fix it.
+          </p>
+          <p>
+            That last part matters more than it sounds. A large share of the tasks we pass are
+            second attempts — the first script ran, produced something visibly wrong, and the model
+            corrected it. A single-shot pipeline never gets that chance.
+          </p>
+
+          <h2>Measure the reading before you build the writing</h2>
+          <p>
+            The tempting move at a hackathon is to start building at hour zero. We spent the first
+            block of time on something less exciting: a representation study. Twenty-six
+            configurations, a fixed stratified 100-task dev split, scored with the shipped evaluator
+            and compared with paired bootstraps over task IDs. The question was narrow — how should
+            this model see a workbook, and how much should it be allowed to think?
+          </p>
+          <p>Three settings came straight out of it, and all three were counterintuitive.</p>
+
+          <h3>Thinking level: medium, not maximum</h3>
+          <p>
+            The thinking sweep gave 43% with reasoning off, 65% on low, 64% on medium, 64% on
+            adaptive. Turning thinking off costs 22 points — a real, wide effect. But low, medium
+            and adaptive are within a point of each other, so past a floor, more deliberation buys
+            nothing here. The cookbook's recommended renderer, <code>xhigh</code>, scored 52% at the
+            8192-token cap and 64% at 16k, for 2.5× the latency. We shipped medium: the same
+            accuracy as low, with more headroom for the agent's longer edit turns.
+          </p>
+
+          <h3>The failures were truncation, not reasoning</h3>
+          <p>
+            The finding that changed the most was mundane. Every one of <code>xhigh</code>'s 41
+            extra failures at the 8192 cap was a reply cut off <em>while still thinking</em>. The
+            Qwen3.8 renderers prefill the think tag, so a truncated completion isn't a bad answer —
+            it's reasoning text with no answer attached, handed to a JSON parser that never had a
+            chance. Raise the cap to 32768 and no thinking level truncated at all; <code>xhigh</code
+            > climbed to 65%.
+          </p>
+          <p>
+            We had been reading those as model errors. They were a budget bug. The harness now
+            detects the cut-off from the stop reason and re-samples one thinking level lower —
+            medium, then low, then off — instead of handing half a thought to the parser.
+          </p>
+
+          <h3>Show formulas, not just values</h3>
+          <p>
+            On a single-shot code loop, a view that showed formulas alongside values beat a
+            values-only digest by 13 points. A spreadsheet's formulas are its intent; strip them and
+            the model is reverse-engineering the logic from outputs. The agent we submitted keeps
+            its compact digest but exposes formulas and values on demand through its inspect tools,
+            which gets the same information in without paying for it in every prompt.
+          </p>
+
+          <h2>The fine-tune that didn't make it</h2>
+          <p>
+            We also ran a LoRA experiment on our own successful traces: 1,722 training action
+            examples and 354 validation examples, reconstructed from agent runs the evaluator had
+            marked correct. Rank 16, learning rate 1e-4, batch size 4, two epochs, 862 optimizer
+            steps. Golden workbook values never entered a prompt or a training example — they were
+            only ever used to decide which traces were worth learning from.
+          </p>
+          <p>
+            It did not beat the base model on measured spreadsheet accuracy. So we shipped the base
+            model and left the checkpoint out of the pipeline entirely. The experiment is still in
+            the repo, with its log, because a negative result you measured is worth more than a
+            positive one you assumed.
+          </p>
+
+          <h2>Where it landed</h2>
+          <p>The shipped evaluator on all 400 tasks, nothing hand-picked:</p>
+
+          <dl class="post__scores" data-reveal>
+            {
+              scores.map((s) => (
+                <div class="post__score">
+                  <dd>{s.value}</dd>
+                  <dt>{s.label}</dt>
+                </div>
+              ))
+            }
+          </dl>
+
+          <p>
+            400 graded, none missing, no errors. The gap between 88.25% pass rate and 82.31% cell
+            accuracy is the all-or-nothing rule showing its teeth: a task can be almost entirely
+            right and still score zero, and a handful of very large answer ranges drag the cell
+            number down without changing many task outcomes.
+          </p>
+
+          <h2>What still breaks</h2>
+          <p>
+            The remaining failures are not exotic. The model misreads a business rule — an
+            "including" that should have been "excluding". It gets a boundary off by one row. It
+            matches case-sensitively when the forum poster meant otherwise, or writes the right
+            number with the wrong formatting. Almost none of it is a failure to operate a
+            spreadsheet; it's a failure to pin down what an ambiguous English sentence actually
+            asked for. That's the part I'd work on next.
+          </p>
+
+          <p class="post__outro">
+            The full pipeline, traces, and the representation study are in
+            <a href={repo} target="_blank" rel="noopener" data-cursor>the submission repo</a>.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <Footer />
+  </main>
+
+  <script>
+    import '../../scripts/app.ts';
+  </script>
+</Base>
+
+<style>
+  .post {
+    padding-top: clamp(6rem, 4rem + 8vw, 11rem);
+    padding-bottom: clamp(3rem, 2rem + 4vw, 6rem);
+  }
+
+  /* ── Header ── */
+  .post__title {
+    margin-top: clamp(1.25rem, 1rem + 2vw, 2.5rem);
+    font-family: var(--font-serif);
+    font-size: var(--step-3);
+    font-weight: 300;
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    max-width: 16ch;
+  }
+  .post__dek {
+    margin-top: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+    max-width: 56ch;
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+  .post__dek em {
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .post__meta {
+    margin-top: clamp(2rem, 1.5rem + 2vw, 3rem);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    border-top: 1px solid var(--line);
+  }
+  .post__meta li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--step-0);
+  }
+  .post__meta span {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+
+  .post__links {
+    margin-top: 1.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .post__links a,
+  .post__outro a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: var(--step--1);
+    font-style: italic;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2px;
+    transition: opacity 0.3s;
+  }
+  .post__links a:hover,
+  .post__outro a:hover {
+    opacity: 0.6;
+  }
+
+  /* ── Body ── */
+  .post__body {
+    margin-top: clamp(3rem, 2rem + 4vw, 6rem);
+    max-width: 68ch;
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .post__body p + p {
+    margin-top: 1.1rem;
+  }
+  .post__body em {
+    font-style: italic;
+    color: var(--ink);
+  }
+  .post__body code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.05em 0.35em;
+    color: var(--ink);
+  }
+
+  .post__body h2 {
+    margin-top: clamp(2.5rem, 2rem + 2vw, 4rem);
+    margin-bottom: 1.1rem;
+    font-family: var(--font-serif);
+    font-size: var(--step-2);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .post__body h2:first-child {
+    margin-top: 0;
+  }
+  .post__body h3 {
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-serif);
+    font-size: var(--step-1);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+
+  /* ── Score strip ── */
+  .post__scores {
+    margin-block: 2rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(1rem, 0.5rem + 2vw, 2.5rem);
+  }
+  .post__score {
+    display: grid;
+    gap: 0.5rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1rem;
+  }
+  .post__score dd {
+    font-family: var(--font-serif);
+    font-size: var(--step-2);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .post__score dt {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .post__outro {
+    margin-top: clamp(2.5rem, 2rem + 2vw, 4rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 640px) {
+    .post__scores {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

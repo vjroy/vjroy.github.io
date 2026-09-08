@@ -1,10 +1,16 @@
 ---
 // Minimal fixed top nav. Anchor links are smooth-scrolled by Lenis (see app.ts).
+interface Props {
+  /** Where the wordmark points. Subpages pass '/' since they have no #top anchor. */
+  brandHref?: string;
+}
+
+const { brandHref = '#top' } = Astro.props;
 ---
 
 <header class="nav" data-nav>
   <div class="nav__inner wrap">
-    <a class="nav__brand" href="#top" data-cursor>
+    <a class="nav__brand" href={brandHref} data-cursor>
       Veejhay&nbsp;Roy<span class="nav__dot">.</span>
     </a>
   </div>

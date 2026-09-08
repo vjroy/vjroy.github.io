@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 860" width="1280" height="860" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1280" height="860" fill="#101512"/>
+  <!-- window chrome -->
+  <rect width="1280" height="56" fill="#18201b"/>
+  <circle cx="34" cy="28" r="6" fill="#2e3a33"/>
+  <circle cx="56" cy="28" r="6" fill="#2e3a33"/>
+  <circle cx="78" cy="28" r="6" fill="#2e3a33"/>
+  <text x="640" y="33" fill="#6d7d73" font-size="15" text-anchor="middle" letter-spacing="1">spreadsheetbench — agent run</text>
+
+  <!-- header -->
+  <text x="150" y="180" fill="#e9efe9" font-size="46" font-family="Georgia, serif" letter-spacing="-1">First place, 400 spreadsheets</text>
+  <text x="150" y="222" fill="#828f86" font-size="20">An agent that reads, edits, and repairs real workbooks</text>
+
+  <!-- big stats -->
+  <text x="150" y="330" fill="#96b59f" font-size="72" font-family="Georgia, serif">1st</text>
+  <text x="150" y="366" fill="#828f86" font-size="18">place overall</text>
+  <text x="400" y="330" fill="#e9efe9" font-size="72" font-family="Georgia, serif">88.25%</text>
+  <text x="400" y="366" fill="#828f86" font-size="18">pass rate</text>
+  <text x="760" y="330" fill="#e9efe9" font-size="72" font-family="Georgia, serif">400</text>
+  <text x="760" y="366" fill="#828f86" font-size="18">tasks graded</text>
+
+  <!-- workbook panel -->
+  <rect x="150" y="420" width="980" height="300" rx="14" fill="#18201b"/>
+
+  <!-- column headers -->
+  <g fill="#6d7d73" font-size="14" text-anchor="middle" letter-spacing="1">
+    <text x="270" y="466">A</text>
+    <text x="410" y="466">B</text>
+    <text x="550" y="466">C</text>
+    <text x="690" y="466">D</text>
+    <text x="830" y="466">E</text>
+    <text x="970" y="466">F</text>
+  </g>
+
+  <!-- highlighted answer range (column D) -->
+  <rect x="620" y="478" width="140" height="220" fill="#96b59f" opacity="0.14"/>
+  <rect x="620" y="478" width="140" height="220" fill="none" stroke="#96b59f" stroke-width="2"/>
+  <text x="690" y="466" fill="#96b59f" font-size="14" text-anchor="middle" letter-spacing="1">D</text>
+
+  <!-- grid lines -->
+  <g stroke="#242e28" stroke-width="1">
+    <path d="M200 478 H1040 M200 522 H1040 M200 566 H1040 M200 610 H1040 M200 654 H1040 M200 698 H1040"/>
+    <path d="M200 440 V698 M340 440 V698 M480 440 V698 M620 440 V698 M760 440 V698 M900 440 V698 M1040 440 V698"/>
+  </g>
+
+  <!-- row numbers -->
+  <g fill="#4f5c54" font-size="14" text-anchor="middle">
+    <text x="175" y="505">1</text>
+    <text x="175" y="549">2</text>
+    <text x="175" y="593">3</text>
+    <text x="175" y="637">4</text>
+    <text x="175" y="681">5</text>
+  </g>
+
+  <!-- source cells (placeholder content bars) -->
+  <g fill="#2b3630">
+    <rect x="216" y="493" width="92" height="12" rx="6"/>
+    <rect x="356" y="493" width="70" height="12" rx="6"/>
+    <rect x="496" y="493" width="84" height="12" rx="6"/>
+    <rect x="776" y="493" width="76" height="12" rx="6"/>
+    <rect x="916" y="493" width="60" height="12" rx="6"/>
+
+    <rect x="216" y="537" width="76" height="12" rx="6"/>
+    <rect x="356" y="537" width="92" height="12" rx="6"/>
+    <rect x="496" y="537" width="62" height="12" rx="6"/>
+    <rect x="776" y="537" width="88" height="12" rx="6"/>
+    <rect x="916" y="537" width="72" height="12" rx="6"/>
+
+    <rect x="216" y="581" width="88" height="12" rx="6"/>
+    <rect x="356" y="581" width="60" height="12" rx="6"/>
+    <rect x="496" y="581" width="92" height="12" rx="6"/>
+    <rect x="776" y="581" width="64" height="12" rx="6"/>
+    <rect x="916" y="581" width="84" height="12" rx="6"/>
+
+    <rect x="216" y="625" width="64" height="12" rx="6"/>
+    <rect x="356" y="625" width="84" height="12" rx="6"/>
+    <rect x="496" y="625" width="72" height="12" rx="6"/>
+    <rect x="776" y="625" width="92" height="12" rx="6"/>
+    <rect x="916" y="625" width="66" height="12" rx="6"/>
+
+    <rect x="216" y="669" width="80" height="12" rx="6"/>
+    <rect x="356" y="669" width="66" height="12" rx="6"/>
+    <rect x="496" y="669" width="78" height="12" rx="6"/>
+    <rect x="776" y="669" width="70" height="12" rx="6"/>
+    <rect x="916" y="669" width="90" height="12" rx="6"/>
+  </g>
+
+  <!-- filled answer cells -->
+  <g fill="#cfe0d4" font-size="17" text-anchor="end" font-family="Georgia, serif">
+    <text x="744" y="509">1,204</text>
+    <text x="744" y="553">876</text>
+    <text x="744" y="597">2,310</text>
+    <text x="744" y="641">545</text>
+    <text x="744" y="685">1,982</text>
+  </g>
+
+  <!-- footer chips -->
+  <g font-size="16">
+    <rect x="150" y="748" width="392" height="44" rx="22" fill="none" stroke="#2e3a33"/>
+    <text x="174" y="776" fill="#828f86">YLookup × Encode · London · Sept 2026</text>
+    <rect x="558" y="748" width="286" height="44" rx="22" fill="none" stroke="#2e3a33"/>
+    <text x="582" y="776" fill="#828f86">Qwen3.8-27B · Tinker</text>
+  </g>
+</svg>
