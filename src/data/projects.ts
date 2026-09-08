@@ -24,6 +24,27 @@ export interface Project {
 export const projects: Project[] = [
   {
     index: '01',
+    title: 'YLookup × Encode',
+    kind: 'Hackathon · 1st Place',
+    year: '2026',
+    isNew: true,
+    image: '/projects/ylookup.svg',
+    tagline: 'First place: an agent that edits real spreadsheets.',
+    summary:
+      'First place at the YLookup × Encode AI Hackathon in London. Team Gherkers built an agentic spreadsheet-editing harness around Qwen3.8-27B — inspect, write Python, recalculate, repair — scoring 88.25% on the 400-task SpreadsheetBench set.',
+    meta: [
+      { label: 'Result', value: '1st place · Sept 2026' },
+      { label: 'Pass rate', value: '88.25% of 400 tasks' },
+      { label: 'Model', value: 'Qwen3.8-27B via Tinker' },
+      { label: 'Team', value: 'Gherkers · 4 people' },
+    ],
+    links: [
+      { label: 'Read the write-up', href: '/blog/spreadsheetbench-agent' },
+      { label: 'GitHub', href: 'https://github.com/ElieBen-Shlomo/encode-hackathon-condensed' },
+    ],
+  },
+  {
+    index: '02',
     title: 'RouteEval',
     kind: 'LLM Research',
     year: '2025',
@@ -44,7 +65,7 @@ export const projects: Project[] = [
     ],
   },
   {
-    index: '02',
+    index: '03',
     title: 'Routecraft',
     kind: 'Web App',
     year: '2025',
@@ -60,7 +81,7 @@ export const projects: Project[] = [
     links: [{ label: 'Visit routecraft.io', href: 'https://routecraft.io' }],
   },
   {
-    index: '03',
+    index: '04',
     title: 'SplitDecision',
     kind: 'iOS App',
     year: '2024',
@@ -80,7 +101,7 @@ export const projects: Project[] = [
     ],
   },
   {
-    index: '04',
+    index: '05',
     title: 'Fraud Detection',
     kind: 'Machine Learning',
     year: '2024',
@@ -95,7 +116,7 @@ export const projects: Project[] = [
     links: [{ label: 'GitHub', href: 'https://github.com/yazganschool/finalproject' }],
   },
   {
-    index: '05',
+    index: '06',
     title: 'HarvardX Data Science',
     kind: 'Certificate',
     year: '2023',
