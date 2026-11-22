@@ -20,6 +20,17 @@ const skills = [
     <div class="about__body">
       <div class="about__col" data-reveal>
         <p>
+          Up next: I’m an incoming SWE intern at the <strong
+            >Broad Institute of MIT and Harvard</strong
+          >, starting December 2026.
+        </p>
+        <p>
+          I’m also building <strong>Starchart AI</strong>
+          (<a href="https://www.trystarchart.com">trystarchart.com</a>): type a problem in any
+          subject and it’s solved, drawn as a live 2D or 3D picture, and explained step by step. It
+          started as a hackathon project and now has around 50 daily users.
+        </p>
+        <p>
           Right now I’m researching how well large language models reason about physical space. That
           turned into <strong>RouteEval</strong>, a benchmark of 10,000+ running-route evaluations
           across 13 models, with a paper submitted to ACL ARR 2025.
@@ -86,6 +97,11 @@ const skills = [
   .about__col strong {
     color: var(--ink);
     font-weight: 600;
+  }
+  .about__col a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
   }
 
   .about__skills {

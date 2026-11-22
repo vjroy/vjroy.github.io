@@ -24,6 +24,24 @@ export interface Project {
 export const projects: Project[] = [
   {
     index: '01',
+    title: 'Starchart AI',
+    kind: 'AI Web App · From a Hackathon',
+    year: '2026',
+    isNew: true,
+    image: '/projects/starchart.svg',
+    tagline: 'Visualize anything: type a problem, watch it solved as a live picture.',
+    summary:
+      'Type a problem in math, physics, chemistry, biology, computing, economics or history, or attach a photo of a worksheet. Starchart solves it, draws it as a live 2D or 3D scene, and walks you through the solution step by step, so you can drag a slider, tap any part, or ask about a single line. Started at a hackathon; now used by around 50 people a day.',
+    meta: [
+      { label: 'Users', value: '~50 daily' },
+      { label: 'Subjects', value: 'Math to history · 7 fields' },
+      { label: 'Scenes', value: 'Live 2D / 3D, guided tours' },
+      { label: 'Stack', value: 'Next.js · TypeScript' },
+    ],
+    links: [{ label: 'Visit trystarchart.com', href: 'https://www.trystarchart.com' }],
+  },
+  {
+    index: '02',
     title: 'YLookup × Encode',
     kind: 'Hackathon · 1st Place',
     year: '2026',
@@ -44,7 +62,7 @@ export const projects: Project[] = [
     ],
   },
   {
-    index: '02',
+    index: '03',
     title: 'RouteEval',
     kind: 'LLM Research',
     year: '2025',
@@ -65,7 +83,7 @@ export const projects: Project[] = [
     ],
   },
   {
-    index: '03',
+    index: '04',
     title: 'Routecraft',
     kind: 'Web App',
     year: '2025',
@@ -81,7 +99,7 @@ export const projects: Project[] = [
     links: [{ label: 'Visit routecraft.io', href: 'https://routecraft.io' }],
   },
   {
-    index: '04',
+    index: '05',
     title: 'SplitDecision',
     kind: 'iOS App',
     year: '2024',
@@ -101,7 +119,7 @@ export const projects: Project[] = [
     ],
   },
   {
-    index: '05',
+    index: '06',
     title: 'Fraud Detection',
     kind: 'Machine Learning',
     year: '2024',
@@ -116,7 +134,7 @@ export const projects: Project[] = [
     links: [{ label: 'GitHub', href: 'https://github.com/yazganschool/finalproject' }],
   },
   {
-    index: '06',
+    index: '07',
     title: 'HarvardX Data Science',
     kind: 'Certificate',
     year: '2023',
