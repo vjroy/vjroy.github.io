@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 860" width="1280" height="860" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1280" height="860" fill="#101512"/>
+  <!-- window chrome -->
+  <rect width="1280" height="56" fill="#18201b"/>
+  <circle cx="34" cy="28" r="6" fill="#2e3a33"/>
+  <circle cx="56" cy="28" r="6" fill="#2e3a33"/>
+  <circle cx="78" cy="28" r="6" fill="#2e3a33"/>
+  <text x="640" y="33" fill="#6d7d73" font-size="15" text-anchor="middle" letter-spacing="1">trystarchart.com</text>
+
+  <!-- header -->
+  <text x="150" y="170" fill="#e9efe9" font-size="46" font-family="Georgia, serif" letter-spacing="-1">Visualize anything</text>
+  <text x="150" y="212" fill="#828f86" font-size="20">Type a problem; watch it solved as a live picture</text>
+
+  <!-- prompt box -->
+  <rect x="150" y="250" width="980" height="64" rx="32" fill="#18201b" stroke="#2e3a33"/>
+  <text x="186" y="290" fill="#cfe0d4" font-size="20">A 5 m ladder slides down a wall. How fast does the top fall?</text>
+  <circle cx="1094" cy="282" r="20" fill="#96b59f"/>
+  <path d="M1086 282 H1102 M1096 275 L1103 282 L1096 289" stroke="#101512" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- canvas panel -->
+  <rect x="150" y="344" width="620" height="380" rx="14" fill="#18201b"/>
+  <g stroke="#242e28" stroke-width="1">
+    <path d="M190 404 H730 M190 474 H730 M190 544 H730 M190 614 H730 M190 684 H730"/>
+    <path d="M250 374 V700 M350 374 V700 M450 374 V700 M550 374 V700 M650 374 V700"/>
+  </g>
+  <!-- wall and floor -->
+  <path d="M230 380 V690 H730" stroke="#4f5c54" stroke-width="3" fill="none"/>
+  <!-- previous ladder positions (dimmed) -->
+  <path d="M230 420 L420 690" stroke="#2e3a33" stroke-width="6" stroke-linecap="round"/>
+  <path d="M230 470 L480 690" stroke="#2e3a33" stroke-width="6" stroke-linecap="round"/>
+  <!-- current ladder -->
+  <path d="M230 540 L560 690" stroke="#96b59f" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="230" cy="540" r="9" fill="#e9efe9"/>
+  <circle cx="560" cy="690" r="9" fill="#e9efe9"/>
+  <!-- tap card -->
+  <rect x="258" y="486" width="196" height="40" rx="8" fill="#101512" stroke="#2e3a33"/>
+  <text x="274" y="512" fill="#cfe0d4" font-size="15">top · y = 2.4 m</text>
+  <!-- slider -->
+  <rect x="270" y="712" width="380" height="4" rx="2" fill="#2e3a33"/>
+  <rect x="270" y="712" width="250" height="4" rx="2" fill="#96b59f"/>
+  <circle cx="520" cy="714" r="8" fill="#e9efe9"/>
+
+  <!-- step panel -->
+  <rect x="790" y="344" width="340" height="380" rx="14" fill="#18201b"/>
+  <text x="818" y="386" fill="#6d7d73" font-size="14" letter-spacing="2">STEP 3 OF 5</text>
+  <text x="818" y="432" fill="#e9efe9" font-size="26" font-family="Georgia, serif">x² + y² = 25</text>
+  <text x="818" y="482" fill="#96b59f" font-size="26" font-family="Georgia, serif">2x·ẋ + 2y·ẏ = 0</text>
+  <g fill="#2b3630">
+    <rect x="818" y="520" width="270" height="12" rx="6"/>
+    <rect x="818" y="546" width="230" height="12" rx="6"/>
+    <rect x="818" y="572" width="250" height="12" rx="6"/>
+  </g>
+  <text x="818" y="640" fill="#e9efe9" font-size="40" font-family="Georgia, serif">ẏ = −1.5</text>
+  <text x="818" y="672" fill="#828f86" font-size="16">m/s, when x = 4</text>
+
+  <!-- footer chips -->
+  <g font-size="16">
+    <rect x="150" y="748" width="300" height="44" rx="22" fill="none" stroke="#2e3a33"/>
+    <text x="174" y="776" fill="#828f86">Math to history · 2D / 3D</text>
+    <rect x="466" y="748" width="230" height="44" rx="22" fill="none" stroke="#2e3a33"/>
+    <text x="490" y="776" fill="#828f86">Next.js · Claude</text>
+  </g>
+</svg>
